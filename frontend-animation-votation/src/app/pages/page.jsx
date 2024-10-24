@@ -1,4 +1,4 @@
-export default function Home() {
+export default function Leaderboard() {
   return (
     <div className="container mx-auto p-6 bg-gray-200 min-h-screen">
       <input
