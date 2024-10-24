@@ -9,6 +9,10 @@ const votesSchema = new Schema({
         type: String,
         required: true
     },
+    submittedBy: {
+        type: String,
+        required: true
+    },
     vote: {
         type: Number,
         required: true,

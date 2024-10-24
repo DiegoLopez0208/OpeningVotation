@@ -1,9 +1,38 @@
+import openingSchema from '../schemas/openingSchema.js'
+import voteSchema from '../schemas/voteSchema.js'
+import userSchema from '../schemas/userSchema.js'
+
 export function adminHandler(app) {
     //// Admin
 
     // GET /admin/results
 
     // GET /admin/results/:openingid
+    app.get('/admin/results/:id', async (req, res) => {
+        const opening = await openingSchema.findById(req.params.id)
+
+        if (!opening) {
+            return res.send({
+                message: "Opening no encontrado!"
+            })
+        }
+
+        const votes = await voteSchema.find({ openingId: req.params.id })
+
+        if (!votes) {
+            return res.send({
+                message: "El opening no tiene votos registrados!"
+            })
+        }
+
+        const users = await userSchema.find();
+
+        res.send({
+            openingId: opening._id,
+            title: opening.title,
+            votes: votes
+        })
+    })
 
     // POST /admin/download
     app.post('/admin/download', async (req, res) => {
