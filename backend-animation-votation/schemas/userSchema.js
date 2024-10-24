@@ -12,14 +12,6 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
-    usedZeroVote: {
-        type: Boolean,
-        default: false
-    },
-    usedElevenVote: {
-        type: Boolean,
-        default: false
-    }
 });
 
 // Middleware para hashear la contraseña antes de guardarla

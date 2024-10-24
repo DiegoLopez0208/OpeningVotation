@@ -1,9 +1,10 @@
-import Vote from '../schemas/voteSchema.js';
+import userSchema from '../schemas/userSchema.js';
+import voteSchema from '../schemas/voteSchema.js';
 
 export function votesHandler(app) {
     // GET /votes/:userid
     app.get('/votes/:id', async (req, res) => {
-        const votes = await Vote.find({ userId: req.params.id })
+        const votes = await voteSchema.find({ userId: req.params.id })
 
         if (!votes) {
             return res.status(404).send('No se encontraron votos para este usuario')
@@ -16,7 +17,8 @@ export function votesHandler(app) {
     app.post('/vote', async (req, res) => {
         const { openingId, userId, vote } = req.body
 
-        const userVotes = await Vote.find({ userId })
+        const userVotes = await voteSchema.find({ userId })
+        const user = await userSchema.findById({ _id: userId })
 
         // Encontrar los votos 0 y 11 entre todos los votos
         const zeroVote = userVotes.find(v => v.vote === 0)
@@ -31,10 +33,11 @@ export function votesHandler(app) {
         }
 
         // Encontrar el voto existente para el openingId y userId
-        const existingVote = await Vote.findOne({ openingId, userId })
+        const existingVote = await voteSchema.findOne({ openingId, userId })
 
         if(!existingVote) {
-            const newVote = new Vote({
+            const newVote = new voteSchema({
+                submittedBy: user.username,
                 openingId,
                 userId,
                 vote
