@@ -11,7 +11,7 @@ export default function Home() {
         <thead className="bg-gradient-to-r from-blue-500 to-blue-400 text-white">
           <tr>
             <th className="px-6 py-4 text-left">Posición</th>
-            <th className="px-6 py-4 text-left">Nombre del Anime</th>
+            <th className="px-6 py-4 text-left">Nombre del Anime</th> 
             <th className="px-6 py-4 text-left">Enlace/Video</th>
             <th className="px-6 py-4 text-left">Puntuación</th>
           </tr>
