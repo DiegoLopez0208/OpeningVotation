@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hola mundo!</h1>
+    <h2 id="videoUrl"></h2>
+    <video id="videoPlayer" controls preload="auto" width="600">
+        <source id="videoSource" src="" type="video/webm" />
+    </video>
+
+
+    <script>
+        const video = document.getElementById('videoPlayer');
+        const source = document.getElementById('videoSource');
+        const videoUrl = document.getElementById('videoUrl');
+
+        let videoStart = 0;
+        let videoChorus = 0;
+
+        // get video info from fetch
+        fetch('/opening/67193fb6209bfb63c09ba167').then(response => response.json()).then(data => {
+            source.src = data.url;
+            videoStart = data.start;
+            videoChorus = data.chorus;
+            video.currentTime = videoStart;
+            videoUrl.innerHTML = data.url;
+            video.load(); // Carga el nuevo recurso de video
+        }).catch(error => {}).finally(() => {});
+
+        // Reproducir los primeros 5 segundos
+        video.play();
+
+        // Espera a que el video llegue a los 5 segundos
+        video.addEventListener('timeupdate', () => {
+            if (video.currentTime > videoStart+7 && video.currentTime < videoChorus) {
+                video.pause(); // Pausa el video en el segundo 5
+                video.currentTime = videoChorus; // Salta al segundo 55
+                video.play(); // Reanuda la reproducción
+            }
+        });
+
+        // Detener el video en el segundo 70
+        video.addEventListener('timeupdate', () => {
+            if (video.currentTime > videoChorus+8) {
+                video.pause(); // Pausa el video en el segundo 70
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descargar Videos</title>
+</head>
+<body>
+    <h1>Descargar Videos</h1>
+    <div id="video-links"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        axios.get('http://localhost:3000/openings')
+        .then(response => {
+            const openings = response.data;
+            const videoLinksDiv = document.getElementById('video-links');
+            openings.forEach(opening => {
+                DescargarVideo(opening)
+            });
+        })
+
+        function DescargarVideo(opening) {
+            axios.get(opening.url, {
+                responseType: 'blob',
+            })
+            .then((obj) => {
+                const url = URL.createObjectURL(obj.data);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = opening.title;
+                document.body.appendChild(a);
+                a.click();
+                URL.revokeObjectURL(url);
+            })
+        }
+    </script>
+</body>
+</html>
