@@ -4,9 +4,7 @@ import userSchema from '../schemas/userSchema.js'
 
 export function adminHandler(app) {
     //// Admin
-
-    // GET /admin/results
-
+    
     // GET /admin/results/:openingid
     app.get('/admin/results/:id', async (req, res) => {
         const opening = await openingSchema.findById(req.params.id)
@@ -24,8 +22,6 @@ export function adminHandler(app) {
                 message: "El opening no tiene votos registrados!"
             })
         }
-
-        const users = await userSchema.find();
 
         res.send({
             openingId: opening._id,
