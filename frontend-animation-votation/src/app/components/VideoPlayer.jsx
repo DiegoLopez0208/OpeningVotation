@@ -6,44 +6,47 @@ export default function VideoPlayer({ src, op }) {
     const videoRef = useRef(null);
 
     useEffect(() => {
-        if (mode === "rapido" && op && videoRef.current) {
-            const videoPlayer = videoRef.current;
-            const startTime = parseInt(op.start, 10);
-            const chorusTime = parseInt(op.chorus, 10);
-            videoPlayer.currentTime = startTime;
-
-            const playSegments = () => {
+        if (!videoRef.current) return;
+    
+        const videoPlayer = videoRef.current;
+        const startTime = parseInt(op.start, 10);
+        const chorusTime = parseInt(op.chorus, 10);
+    
+        // Función de reproducción segmentada
+        const handleTimeUpdate = () => {
+            const currentTime = videoPlayer.currentTime;
+    
+            // Primera pausa en el segmento inicial
+            if (mode === "rapido" && currentTime >= startTime + 5 && currentTime < chorusTime) {
+                videoPlayer.pause();
+                videoPlayer.currentTime = chorusTime;
                 videoPlayer.play();
-
-                const firstSegmentEnd = startTime + 5;
-                const timeUpdateHandler = () => {
-                    if (mode === "rapido" && videoPlayer.currentTime >= firstSegmentEnd) {
-                        videoPlayer.pause();
-                        videoPlayer.currentTime = chorusTime;
-                        videoPlayer.play();
-
-                        const secondSegmentEnd = chorusTime + 15;
-                        const secondSegmentHandler = () => {
-                            if (mode === "rapido" && videoPlayer.currentTime >= secondSegmentEnd) {
-                                videoPlayer.pause();
-                                videoPlayer.removeEventListener("timeupdate", secondSegmentHandler);
-                            }
-                        };
-
-                        videoPlayer.addEventListener("timeupdate", secondSegmentHandler);
-                        videoPlayer.removeEventListener("timeupdate", timeUpdateHandler);
-                    }
-                };
-
-                videoPlayer.addEventListener("timeupdate", timeUpdateHandler);
-            };
-
-            playSegments();
+            }
+            // Segunda pausa en el segmento del estribillo
+            else if (mode === "rapido" && currentTime >= chorusTime + 15) {
+                videoPlayer.pause();
+                videoPlayer.removeEventListener("timeupdate", handleTimeUpdate);
+            }
+        };
+    
+        // Configura el video dependiendo del modo
+        if (mode === "rapido") {
+            videoPlayer.currentTime = startTime;
+            videoPlayer.play();
+            videoPlayer.addEventListener("timeupdate", handleTimeUpdate);
+        } else if (mode === "normal") {
+            videoPlayer.currentTime = 0;
+            videoPlayer.play();
         }
-        else if (mode === "normal" && videoRef.current) {
-            videoRef.current.play();
-        }
+    
+        // Limpieza de listener al desmontar o al cambiar de modo
+        return () => {
+            videoPlayer.pause();
+            videoPlayer.removeEventListener("timeupdate", handleTimeUpdate);
+        };
     }, [mode, op]);
+    
+    
 
     return (
         <video
