@@ -3,7 +3,7 @@ import User from '../schemas/userSchema.js';
 export function userHandler(app) {
 
     // POST /signin
-    app.post('/signin', async (req, res) => {
+    app.post('/api/signin', async (req, res) => {
         const { username, password } = req.body;
 
         try {
@@ -17,27 +17,39 @@ export function userHandler(app) {
     });
 
     // POST /login
-    app.post('/login', async (req, res) => {
+    app.post('/api/login', async (req, res) => {
         const { username, password } = req.body;
+
+        console.log(username, password)
 
         try {
             const user = await User.findOne({ username });
             if (!user) {
-                return res.status(401).send('Usuario no encontrado');
+                return res.send({
+                    status: 401,
+                    message: 'Usuario no encontrado'
+                });
             }
 
             const isMatch = await user.comparePassword(password);
 
             if (isMatch) {
-                res.status(200)
-                .send({
+                res.send({
+                    status: 200,
+                    message: 'Autenticado correctamente',
                     userId: user._id
                 });
             } else {
-                res.status(401).send('Contraseña incorrecta');
+                res.send({
+                    status: 401,
+                    message: 'Contraseña incorrecta'
+                });
             }
         } catch (error) {
-            res.status(500).send('Error al autenticar');
+            res.send({ 
+                status: 500,
+                message: 'Error al autenticar'
+            });
         }
     });
 }

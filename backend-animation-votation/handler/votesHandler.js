@@ -3,18 +3,22 @@ import voteSchema from '../schemas/voteSchema.js';
 
 export function votesHandler(app) {
     // GET /votes/:userid
-    app.get('/votes/:id', async (req, res) => {
+    app.get('/api/votes/:id', async (req, res) => {
         const votes = await voteSchema.find({ userId: req.params.id })
 
         if (!votes) {
             return res.status(404).send('No se encontraron votos para este usuario')
         }
 
-        res.send(votes)
+        res.send({
+            status: 200,
+            message: 'Votos encontrados',
+            data: votes
+        })
     })
 
     // POST /vote
-    app.post('/vote', async (req, res) => {
+    app.post('/api/vote', async (req, res) => {
         const { openingId, userId, vote } = req.body
 
         const userVotes = await voteSchema.find({ userId })

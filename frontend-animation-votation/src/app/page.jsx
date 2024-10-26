@@ -1,11 +1,49 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PasswordInput from "./components/PasswordInput";
 
 export default function Home() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState();
+  
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      window.location.href = "/pages";
+    }
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+
+    try {
+      const response = await fetch("http://localhost:4000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+      console.log("Respuesta del servidor:", data);
+
+      if (data.status === 200) {
+        localStorage.setItem("userId", data.userId);
+        window.location.href = "/pages";
+      }
+
+      if (data.status === 401) {
+        setError(data.message);
+      }
+      
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+      setError("No se pudo conectar con el servidor");
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f9f9f9]">
@@ -55,6 +93,7 @@ export default function Home() {
           <button
             type="submit"
             className="w-full bg-[#1034FF] text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition-all duration-200"
+            onClick={handleSubmit}
           >
             Iniciar sesión
           </button>

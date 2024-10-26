@@ -6,7 +6,7 @@ export function adminHandler(app) {
     //// Admin
     
     // GET /admin/results/:openingid
-    app.get('/admin/results/:id', async (req, res) => {
+    app.get('/api/admin/results/:id', async (req, res) => {
         const opening = await openingSchema.findById(req.params.id)
 
         if (!opening) {
@@ -31,7 +31,7 @@ export function adminHandler(app) {
     })
 
     // POST /admin/download
-    app.post('/admin/download', async (req, res) => {
+    app.post('/api/admin/download', async (req, res) => {
         const { videoUrl } = req.body;
 
         if (!videoUrl) {

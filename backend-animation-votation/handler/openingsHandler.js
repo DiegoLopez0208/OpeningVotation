@@ -3,7 +3,7 @@ import Opening from '../schemas/openingSchema.js';
 export function openingsHandler(app) {
 
     // POST /opening
-    app.post('/opening', async (req, res) => {
+    app.post('/api/opening', async (req, res) => {
         const { title, url, start, chorus } = req.body;
     
         const newOpening = new Opening({
@@ -18,24 +18,54 @@ export function openingsHandler(app) {
     })
 
     // GET /opening/:id
-    app.get('/opening/:id', async (req, res) => {
-        const opening = await Opening.findById(req.params.id)
-    
-        if (!opening) {
-            return res.status(404).send('No se encontró el opening')
+    app.get('/api/opening/:id', async (req, res) => {
+        try {
+            const opening = await Opening.findById(req.params.id)
+        
+            if (!opening) {
+                return res.status(404).send('No se encontró el opening')
+            }
+        
+            // Obtener el opening anterior
+            const previousOpening = await Opening.findOne({ _id: { $lt: opening._id } }).sort({ _id: -1 });
+            
+            // Obtener el opening posterior
+            const nextOpening = await Opening.findOne({ _id: { $gt: opening._id } }).sort({ _id: 1 });
+
+            res.send({
+                status: 200,
+                message: 'Opening encontrado',
+                data: {
+                    opening,
+                    previousOpening,
+                    nextOpening                    
+                }
+            })
+        } catch (error) {
+            res.send({
+                status: 500,
+                message: 'Error al obtener el opening',
+                error
+            })
         }
-    
-        res.send(opening)
+
     })
 
     // GET /openings
-    app.get('/openings', async (req, res) => {
+    app.get('/api/openings', async (req, res) => {        
         const openings = await Opening.find()
-    
+
         if (!openings) {
-            return res.status(404).send('No existen openings almacenados')
+            return res.send({
+                status: 404,
+                message: 'No existen openings almacenados'
+            })
         }
-    
-        res.send(openings)
+        
+        res.send({
+            status: 200,
+            message: 'Openings encontrados',
+            openings,
+        });
     })
 }
