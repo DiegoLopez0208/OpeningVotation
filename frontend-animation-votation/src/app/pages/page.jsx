@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import LoadingIcon from "../components/LoadingIcon";
 import ModeChange from "@/app/components/ModeChange";
+import { IoMdHome } from "react-icons/io";
 
 export default function Leaderboard() {
   const [ops, setOps] = useState([]);
@@ -60,9 +61,15 @@ export default function Leaderboard() {
   }
 
   return (
-    <div className="container mx-auto p-6 bg-gray-200 min-h-screen">
-      <ModeChange reload={false}/>
-      <table className="w-full table-auto bg-white shadow-xl rounded-xl overflow-hidden">
+    <div className="container sm:w-1/2 mx-auto sm:p-6 bg-gray-200 min-h-screen">
+      <div className="flex justify-between">
+        <button className="text-3xl bg-blue-600 hover:bg-blue-800 text-white mb-4 sm:mr-4 px-4 py-2 sm:rounded-lg transition duration-200 shadow-lg">
+          <IoMdHome className="" />
+        </button>
+
+        <ModeChange reload={false} />
+      </div>
+      <table className="w-full table-auto bg-white shadow-xl sm:rounded-xl overflow-hidden">
         <thead className="bg-gradient-to-r from-blue-500 to-blue-400 text-white">
           <tr>
             <th className="px-6 py-4 text-left">Nombre del Anime</th>
@@ -93,12 +100,12 @@ export default function Leaderboard() {
 
       <div className="mt-6 flex justify-center items-center space-x-4">
         <button
-          className="flex items-center justify-center rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 transition-all duration-200"
+          className="flex items-center justify-center w-12 h-12 pb-1 bg-blue-500 rounded-lg shadow hover:bg-blue-600 transition-all duration-200"
           onClick={() => {
             if (page > 1) setPage(page - 1);
           }}
         >
-          ←
+          <span className="text-xl text-white">&laquo;</span>
         </button>
 
         <span className="text-lg font-semibold">
@@ -106,12 +113,12 @@ export default function Leaderboard() {
         </span>
 
         <button
-          className="flex items-center justify-center rounded-full bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 transition-all duration-200"
+          className="flex items-center justify-center w-12 h-12 pb-1 bg-blue-500 rounded-lg shadow hover:bg-blue-600 transition-all duration-200"
           onClick={() => {
-            if (page < totalPages) setPage(page + 1);
+            if (page > 1) setPage(page - 1);
           }}
         >
-          →
+          <span className="text-xl text-white">&raquo;</span>
         </button>
       </div>
     </div>

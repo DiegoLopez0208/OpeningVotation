@@ -1,6 +1,6 @@
 export default function LoadingIcon() {
     return (
-        <div className="flex justify-center items-center h-screen flex-col">
+        <div className="flex justify-center items-center h-screen flex-row gap-2">
             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <style>
                     {`
@@ -18,7 +18,7 @@ export default function LoadingIcon() {
                     className="spinner_aj0A"
                 />
             </svg>
-            <span className="py-2">Cargando...</span>
+            <span className="py-2 font-semibold">Cargando...</span>
         </div>
     );
 }

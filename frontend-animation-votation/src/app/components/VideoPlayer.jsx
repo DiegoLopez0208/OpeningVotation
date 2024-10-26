@@ -49,7 +49,7 @@ export default function VideoPlayer({ src, op }) {
         <video
             ref={videoRef}
             src={src}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover sm:rounded-lg"
             autoPlay
             controls
         />

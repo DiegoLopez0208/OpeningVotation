@@ -11,10 +11,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-        <body className="bg-gray-200">
-          <ModeProvider>
-            {children}
-          </ModeProvider>
+        <body>
+            <ModeProvider>
+              {children}
+            </ModeProvider>
         </body>
     </html>
   );
