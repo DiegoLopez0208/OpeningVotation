@@ -1,22 +1,24 @@
 "use client";
-import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { useMode } from "@/app/context/ModeContext";
+import LoadingIcon from "@/app/components/LoadingIcon";
+import ModeChange from "@/app/components/ModeChange"
+import VideoPlayer from "@/app/components/VideoPlayer";
 
 export default function PostPage() {
+  const {mode} = useMode();
   const { id } = useParams();
   const [data, setData] = useState(null);
-  const [op, setOp] = useState(null);
   const [loading, setLoading] = useState(true);
-  const videoRef = useRef(null); // Referencia para el elemento de video
 
   useEffect(() => {
     async function fetchOpening() {
       try {
-        const res = await fetch(`http://localhost:4000/api/opening/${id}`);
+        const res = await fetch(`http://192.168.1.58:4000/api/opening/${id}`);
         if (!res.ok) throw new Error("Opening no encontrado");
         const { data } = await res.json();
         setData(data);
-        setOp(data.opening);
       } catch (error) {
         console.error("Error al obtener el opening:", error);
       } finally {
@@ -26,77 +28,39 @@ export default function PostPage() {
     fetchOpening();
   }, [id]);
 
-  useEffect(() => {
-    // Reproduce el video cuando `op` esté listo y `loading` sea falso
-    if (op && !loading && videoRef.current) {
-      const videoPlayer = videoRef.current;
-
-      const startTime = parseInt(op.start, 10);
-      const chorusTime = parseInt(op.chorus, 10);
-      
-      // Establece el tiempo de inicio
-      videoPlayer.currentTime = startTime;
-
-      const playSegments = () => {
-        videoPlayer.play();
-
-        // Maneja el primer segmento (5 segundos desde `start`)
-        const firstSegmentEnd = startTime + 5; // Fin del primer segmento
-
-        const timeUpdateHandler = () => {
-          if (videoPlayer.currentTime >= firstSegmentEnd) {
-            videoPlayer.pause();
-            videoPlayer.currentTime = chorusTime; // Salta al tiempo de `chorus`
-            videoPlayer.play(); // Reanuda la reproducción
-
-            // Maneja el segundo segmento (15 segundos desde `chorus`)
-            const secondSegmentEnd = chorusTime + 15; // Fin del segundo segmento
-
-            const secondSegmentHandler = () => {
-              if (videoPlayer.currentTime >= secondSegmentEnd) {
-                videoPlayer.pause();
-                videoPlayer.removeEventListener('timeupdate', secondSegmentHandler); // Remueve el listener
-              }
-            };
-
-            videoPlayer.addEventListener('timeupdate', secondSegmentHandler);
-            videoPlayer.removeEventListener('timeupdate', timeUpdateHandler); // Remueve el listener del primer segmento
-          }
-        };
-
-        videoPlayer.addEventListener('timeupdate', timeUpdateHandler);
-      };
-
-      playSegments();
-    }
-  }, [op, loading]);
-
-  // Button function to go to the next video or previous video based on the id of the button
   const handleButtonClick = (id) => {
     window.location.href = `/pages/openings/${id}`;
-  }
+  };
 
   if (loading) {
-    return <p>Cargando...</p>;
-  }
-
-  if (!op) {
-    return <p>Opening no encontrado</p>;
+    return <LoadingIcon />;
   }
 
   return (
-    <div>
-      <button onClick={() => window.history.back()}>Volver</button>
-      <h1>{op.title}</h1>
-      <p>URL del video: {op.url}</p>
-      <video ref={videoRef} src={op.url} width={720} controls autoPlay />
+    <div className="container mx-auto p-6 bg-gray-200 min-h-screen flex flex-col items-center">
+      <ModeChange reload={true}/>
+      <div className="flex flex-row">
+        <h1>{data.opening.title}</h1>
+        <button
+          className="ml-4"
+          onClick={() => (window.location.href = "/pages")}
+        >
+          Volver
+        </button>
+      </div>
+      <VideoPlayer src={data.opening.url} mode={mode} op={data.opening}></VideoPlayer>
+      Votacion XD
       {data.previousOpening ? (
-        <button onClick={() => handleButtonClick(data.previousOpening._id)}>Anterior</button>
+        <button onClick={() => handleButtonClick(data.previousOpening._id)}>
+          Anterior
+        </button>
       ) : null}
-
       {data.nextOpening ? (
-        <button onClick={() => handleButtonClick(data.nextOpening._id)}>Siguiente</button>
+        <button onClick={() => handleButtonClick(data.nextOpening._id)}>
+          Siguiente
+        </button>
       ) : null}
+      <p>URL del video: {data.opening.url}</p>
     </div>
   );
 }

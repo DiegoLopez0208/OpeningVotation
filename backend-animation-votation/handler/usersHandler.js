@@ -10,9 +10,15 @@ export function userHandler(app) {
             const user = new User({ username, password });
 
             await user.save();
-            res.status(201).send('Usuario registrado con éxito');
+            res.send({
+                status: 201,
+                message: 'Usuario registrado con éxito'
+            });
         } catch (error) {
-            res.status(500).send('Error al registrar usuario');
+            res.send({
+                status: 500, 
+                message: 'Error al registrar usuario'
+            });
         }
     });
 

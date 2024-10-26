@@ -14,7 +14,10 @@ export function openingsHandler(app) {
         })
     
         newOpening.save()
-        res.send('Opening agregado correctamente!')
+        res.send({
+            status: 201, 
+            message: 'Opening agregado correctamente!'
+        })
     })
 
     // GET /opening/:id
@@ -23,7 +26,10 @@ export function openingsHandler(app) {
             const opening = await Opening.findById(req.params.id)
         
             if (!opening) {
-                return res.status(404).send('No se encontró el opening')
+                return res.send({
+                    status: 404,
+                    message: 'No se encontró el opening'
+                })
             }
         
             // Obtener el opening anterior

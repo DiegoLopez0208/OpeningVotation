@@ -29,11 +29,17 @@ export function votesHandler(app) {
         const elevenVote = userVotes.find(v => v.vote === 11)
 
         if (vote === 0 && zeroVote) {
-            return res.status(400).send('El usuario ya ha utilizado su voto nulo');
+            return res.send({
+                status: 400, message: 
+                'El usuario ya ha utilizado su voto nulo'
+            });
         }
         
         if(vote === 11 && elevenVote) {
-            return res.status(400).send('El usuario ya ha utilizado su voto 11')
+            return res.send({
+                status: 400, 
+                message: 'El usuario ya ha utilizado su voto 11'
+            })
         }
 
         // Encontrar el voto existente para el openingId y userId
@@ -48,7 +54,9 @@ export function votesHandler(app) {
             })
         
             newVote.save()
-            return res.send('Voto agregado correctamente!')
+            return res.send({
+                status: 200, message: 'Voto agregado correctamente!'
+            })
         }
 
 
@@ -56,6 +64,9 @@ export function votesHandler(app) {
 
 
         existingVote.save()
-        return res.send('Voto actualizado correctamente!')
+        return res.send({
+            status: 200,
+            message: 'Voto actualizado correctamente!'
+        })
     })
 }
