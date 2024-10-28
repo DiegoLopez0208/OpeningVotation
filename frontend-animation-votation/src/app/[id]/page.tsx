@@ -103,7 +103,7 @@ export default function PostPage() {
         </div>
 
         {/* Slider de votación */}
-        <div className="bg-gray-50 bg-opacity-80 shadow-lg hover:shadow-xl hover:shadow-purple-500 sm:rounded-lg p-6 mb-6 flex flex-col items-center transition-all duration-200">
+        <div className="bg-gray-50 bg-opacity-80 shadow-lg hover:shadow-xl hover:shadow-purple-500 sm:rounded-lg p-6 mb-4 flex flex-col items-center transition-all duration-200">
           <div className="flex items-center w-full gap-4">
             {/* Botón 1 */}
             <button
