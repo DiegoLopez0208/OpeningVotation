@@ -13,8 +13,8 @@ export default function RootLayout({  children, }: Readonly<{ children: React.Re
     <html lang="es">
       <body>
         <SettingsProvider>
-          { <Navbar /> }
-            {children}
+          <Navbar />
+          {children}
         </SettingsProvider>
       </body>
     </html>

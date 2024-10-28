@@ -60,6 +60,7 @@ export default function VideoPlayer({ src, op }: Props) {
             src={src}
             className="w-full h-full object-cover sm:rounded-lg"
             controls
+            muted
         />
     );
 }

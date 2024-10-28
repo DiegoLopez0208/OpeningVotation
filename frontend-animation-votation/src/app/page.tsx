@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import LoadingIcon from "@/app/components/LoadingIcon";
 import ModeChange from "@/app/components/ModeChange";
 import { IoMdHome } from "react-icons/io";
+
 import Link from "next/link";
 
 interface Opening {
@@ -24,6 +25,13 @@ export default function Leaderboard() {
   const [pageSize] = useState<number>(10);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [votes, setVotes] = useState<Vote[]>([]);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      window.location.href = "/login";
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchOpenings() {
@@ -76,13 +84,6 @@ export default function Leaderboard() {
 
   return (
     <div className="container sm:w-1/2 mx-auto sm:p-6 bg-gray-200 min-h-screen">
-      <div className="flex justify-between">
-        <button className="text-3xl bg-blue-600 hover:bg-blue-800 text-white mb-4 sm:mr-4 px-4 py-2 sm:rounded-lg transition duration-200 shadow-lg">
-          <IoMdHome className="" />
-        </button>
-
-        <ModeChange reload={false} />
-      </div>
       <table className="w-full table-auto bg-white shadow-xl sm:rounded-xl overflow-hidden">
         <thead className="bg-gradient-to-r from-blue-500 to-blue-400 text-white">
           <tr>

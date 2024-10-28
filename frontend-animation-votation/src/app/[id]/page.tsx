@@ -11,14 +11,6 @@ import Konata from "@/app/img/konata.gif";
 import { IoMdHome } from "react-icons/io";
 import Link from "next/link";
 
-interface Opening {
-  _id: string;
-  title: string;
-  url: string;
-  start: number;
-  chorus: number;
-}
-
 interface Vote {
   openingId: string;
   userId: string;
@@ -32,10 +24,9 @@ export default function PostPage() {
   const { id } = useParams();
   const [userId, setUserId] = useState<string | null>();
   const [ops, setOps] = useState<any>(null);
-  const [votes, setVotes] = useState<any>(null);
   const [opVote, setOpVote] = useState<Vote>();
   const [loading, setLoading] = useState<boolean>(true);
-  const [value, setValue] = useState<number>(5); // Iniciar en 5 para un rango de 1 a 10
+  const [value, setValue] = useState<number>(5);
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
@@ -55,9 +46,6 @@ export default function PostPage() {
         const opData = await opRes.json();
         const votesData = await voteRes.json();
   
-        console.log(votesData)
-        setVotes(votesData.data);
-
         // encontrar el voto del usuario para el opening
         const userVote = votesData.data.find((vote: Vote) => vote.openingId === id);
         setOpVote(userVote ? userVote : {
@@ -80,10 +68,8 @@ export default function PostPage() {
   }
 
   const handleButtonClick = (openingId: string) => {
-    window.location.href = `/pages/openings/${openingId}`;
+    window.location.href = `/${openingId}`;
   };
-
-  const formatValue = (value: number) => value / 10;
 
   if (loading) return <LoadingIcon />;
 
@@ -91,6 +77,7 @@ export default function PostPage() {
     <div className="w-full bg-gray-200">
       <Image
         src={Kita}
+        hidden={!gifsEnabled}
         unoptimized
         height={150}
         alt="Kita icon"
@@ -98,24 +85,14 @@ export default function PostPage() {
       />
       <Image
         src={Konata}
+        hidden={!gifsEnabled}
         unoptimized
         priority
         height={200}
         alt="Konata icon"
-        className="absolute -bottom-3 left-0"
+        className="absolute bottom-0 left-0"
       />
       <div className="container sm:w-1/2 mx-auto sm:p-6 bg-gray-300 h-screen">
-        <div className="flex justify-between">
-          <Link
-            href="/"
-            className="text-3xl bg-blue-600 hover:bg-blue-800 text-white mb-4 sm:mr-4 px-4 sm:rounded-lg transition duration-200 shadow-lg"
-          >
-            <IoMdHome className="" />
-          </Link>
-
-          <ModeChange reload={true} />
-        </div>
-
         {/* Contenedor del video y título */}
         <div className="bg-white bg-opacity-90 shadow-lg hover:shadow-purple-500 sm:rounded-lg sm:p-4 mb-4 transition-all duration-200">
           <h1 className="text-4xl text-gray-800 sm:my-0 sm:mb-4 my-2">
@@ -158,13 +135,13 @@ export default function PostPage() {
                 id="slider-value"
                 className="mt-2 font-semibold text-xl text-gray-800"
               >
-                Nota: {formatValue(value)}
+                Nota: {(value / 10)}
               </span>
             </div>
 
             {/* Botón 10 */}
             <button
-              className="bg-green-600 hover:bg-green-800 text-white px-4 py-2 rounded-lg transition duration-200"
+              className="bg-green-600 hover:bg-green-800 text-white px-3 py-2 rounded-lg transition duration-200"
               onClick={() => setValue(10)}
             >
               11
@@ -174,7 +151,7 @@ export default function PostPage() {
           {/* Botón de envío de voto */}
           <button
             className="mt-4 bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg transition-all duration-200 shadow-md"
-            onClick={() => console.log(`Voto enviado: ${formatValue(value)}`)}
+            onClick={() => console.log(`Voto enviado: ${value}`)}
           >
             Enviar voto
           </button>

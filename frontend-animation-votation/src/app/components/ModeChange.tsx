@@ -15,9 +15,9 @@ export default function ModeChange({ reload }: Props) {
   }
 
   return (
-    <div className=" bg-white p-3 sm:rounded-lg shadow-md flex justify-between items-center mb-4 font-semibold w-full">
+    <div className=" bg-white p-3 sm:rounded-t-lg flex justify-between items-center font-semibold w-full border-b-2">
       <span>Modo de ver: </span>
-      <div className="ml-2 flex gap-2">
+      <div className="flex gap-2">
         <button
           className={`rounded-md px-3 py-1 transition-all duration-200 hover:bg-green-500 hover:text-white ${
             mode === "normal" ? "bg-green-500 text-white" : ""

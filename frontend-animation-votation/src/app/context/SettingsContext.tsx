@@ -12,7 +12,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [mode, setMode] = useState<string>("normal");
-    const [gifsEnabled, setGifsEnabled] = useState<boolean>(false);
+    const [gifsEnabled, setGifsEnabled] = useState<boolean>(true);
 
     useEffect(() => {
         const savedMode = localStorage.getItem("mode");
