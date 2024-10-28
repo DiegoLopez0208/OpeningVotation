@@ -1,10 +1,14 @@
-import { useMode } from "../context/ModeContext";
+import { useSettings } from "@/app/context/SettingsContext";
 
-export default function ModeChange({ reload }) {
-  const { mode, setModeDirectly } = useMode();
+interface Props {
+  reload: boolean;
+}
 
-  function handleModeChange(mode) {
-    setModeDirectly(mode);
+export default function ModeChange({ reload }: Props) {
+  const { mode, setMode } = useSettings();
+
+  function handleModeChange(mode: string) {
+    setMode(mode);
     if (reload) {
       window.location.reload();
     }

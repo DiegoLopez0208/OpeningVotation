@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { useMode } from "@/app/context/ModeContext";
+import { useSettings } from "@/app/context/SettingsContext";
 import LoadingIcon from "@/app/components/LoadingIcon";
 import ModeChange from "@/app/components/ModeChange";
 import VideoPlayer from "@/app/components/VideoPlayer";
@@ -9,16 +9,33 @@ import Image from "next/image";
 import Kita from "@/app/img/kita-chan-kitaikuyo.gif";
 import Konata from "@/app/img/konata.gif";
 import { IoMdHome } from "react-icons/io";
+import Link from "next/link";
+
+interface Opening {
+  _id: string;
+  title: string;
+  url: string;
+  start: number;
+  chorus: number;
+}
+
+interface Vote {
+  openingId: string;
+  userId: string;
+  vote: number;
+  _id: string;
+  submittedBy: string;
+}
 
 export default function PostPage() {
-  const { mode } = useMode();
+  const { mode, gifsEnabled } = useSettings();
   const { id } = useParams();
-  const [userId, setUserId] = useState(null);
-  const [ops, setOps] = useState(null);
-  const [votes, setVotes] = useState(null);
-  const [opVote, setOpVote] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [value, setValue] = useState(5); // Iniciar en 5 para un rango de 1 a 10
+  const [userId, setUserId] = useState<string | null>();
+  const [ops, setOps] = useState<any>(null);
+  const [votes, setVotes] = useState<any>(null);
+  const [opVote, setOpVote] = useState<Vote>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [value, setValue] = useState<number>(5); // Iniciar en 5 para un rango de 1 a 10
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
@@ -42,8 +59,10 @@ export default function PostPage() {
         setVotes(votesData.data);
 
         // encontrar el voto del usuario para el opening
-        const userVote = votesData.data.find((vote) => vote.openingId === id);
-        setOpVote(userVote ? userVote : null);
+        const userVote = votesData.data.find((vote: Vote) => vote.openingId === id);
+        setOpVote(userVote ? userVote : {
+          value: 0,
+        });
 
         setOps(opData.data);
         
@@ -56,13 +75,15 @@ export default function PostPage() {
     fetchOpening();
   }, [id, userId]);
 
-  const handleChange = (e) => setValue(e.target.value);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(Number(e.target.value));
+  }
 
-  const handleButtonClick = (openingId) => {
+  const handleButtonClick = (openingId: string) => {
     window.location.href = `/pages/openings/${openingId}`;
   };
 
-  const formatValue = (value) => value / 10;
+  const formatValue = (value: number) => value / 10;
 
   if (loading) return <LoadingIcon />;
 
@@ -85,12 +106,12 @@ export default function PostPage() {
       />
       <div className="container sm:w-1/2 mx-auto sm:p-6 bg-gray-300 h-screen">
         <div className="flex justify-between">
-          <button
-            onClick={() => (window.location.href = "/pages")}
+          <Link
+            href="/"
             className="text-3xl bg-blue-600 hover:bg-blue-800 text-white mb-4 sm:mr-4 px-4 sm:rounded-lg transition duration-200 shadow-lg"
           >
             <IoMdHome className="" />
-          </button>
+          </Link>
 
           <ModeChange reload={true} />
         </div>
@@ -100,7 +121,7 @@ export default function PostPage() {
           <h1 className="text-4xl text-gray-800 sm:my-0 sm:mb-4 my-2">
             {ops.opening.title}
           </h1>
-          <h3>Nota {opVote.vote}</h3>
+          <h3>{opVote?.vote ? `Voto: ${opVote.vote}` : "Aun sin votar"}</h3>
           <VideoPlayer src={ops.opening.url} mode={mode} op={ops.opening} />
         </div>
 

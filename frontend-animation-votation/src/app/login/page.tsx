@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import PasswordInput from "./components/PasswordInput";
-import { ModeProvider } from "./context/ModeContext";
+import PasswordInput from "@/app/components/PasswordInput";
 
 export default function Home() {
   const [username, setUsername] = useState("");
@@ -11,13 +10,13 @@ export default function Home() {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (userId) {
-      window.location.href = "/pages";
+      window.location.href = "/";
     }
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     try {
       const response = await fetch("http://192.168.1.58:4000/api/login", {
         method: "POST",
@@ -32,15 +31,14 @@ export default function Home() {
 
       if (data.status === 200) {
         localStorage.setItem("userId", data.userId);
-        window.location.href = "/pages";
+        window.location.href = "/";
       }
 
       if (data.status === 401) {
         setError(data.message);
       }
     } catch (error) {
-      console.error("Error en la solicitud:", error);
-      setError("No se pudo conectar con el servidor");
+      console.error("Error en la solicitud:", error);     
     }
   };
 

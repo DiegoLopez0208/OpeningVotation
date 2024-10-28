@@ -1,9 +1,18 @@
 import { useEffect, useRef } from "react";
-import { useMode } from "../context/ModeContext";
+import { useSettings } from "@/app/context/SettingsContext";
 
-export default function VideoPlayer({ src, op }) {
-    const { mode } = useMode();
-    const videoRef = useRef(null);
+interface Props {
+    src: string;
+    op: {
+        start: string;
+        chorus: string;
+    };
+    mode: string;
+}
+
+export default function VideoPlayer({ src, op }: Props) {
+    const { mode } = useSettings();
+    const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
         if (!videoRef.current) return;
@@ -40,10 +49,7 @@ export default function VideoPlayer({ src, op }) {
         }
     
         // Limpieza de listener al desmontar o al cambiar de modo
-        return () => {
-            videoPlayer.pause();
-            videoPlayer.removeEventListener("timeupdate", handleTimeUpdate);
-        };
+
     }, [mode, op]);
     
     
@@ -53,7 +59,6 @@ export default function VideoPlayer({ src, op }) {
             ref={videoRef}
             src={src}
             className="w-full h-full object-cover sm:rounded-lg"
-            autoPlay
             controls
         />
     );

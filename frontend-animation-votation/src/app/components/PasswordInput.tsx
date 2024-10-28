@@ -1,9 +1,15 @@
 "use client";
-
 import { useState } from "react";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 
-const PasswordInput = ({ value, onChange }) => {
+interface PasswordInputProps {
+  id?: string;
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  className?: string;
+}
+
+const PasswordInput: React.FC<PasswordInputProps> =  ({ value, onChange }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {

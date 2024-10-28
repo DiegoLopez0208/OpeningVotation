@@ -1,16 +1,29 @@
 "use client";
 import { useEffect, useState } from "react";
-import LoadingIcon from "../components/LoadingIcon";
+import LoadingIcon from "@/app/components/LoadingIcon";
 import ModeChange from "@/app/components/ModeChange";
 import { IoMdHome } from "react-icons/io";
+import Link from "next/link";
+
+interface Opening {
+  _id: string;
+  title: string;
+  url: string;
+}
+
+interface Vote {
+  openingId: string;
+  userId: string;
+  vote: number;
+}
 
 export default function Leaderboard() {
   const [ops, setOps] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(0);
-  const [votes, setVotes] = useState([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [page, setPage] = useState<number>(1);
+  const [pageSize] = useState<number>(10);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [votes, setVotes] = useState<Vote[]>([]);
 
   useEffect(() => {
     async function fetchOpenings() {
@@ -26,7 +39,7 @@ export default function Leaderboard() {
         const votesData = await votes.json();
 
         setOps(opData.openings);
-        setVotes(votesData.data);
+        setVotes(votesData.data || []);
         setTotalPages(Math.ceil(opData.openings.length / pageSize));
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -38,23 +51,24 @@ export default function Leaderboard() {
     fetchOpenings();
   }, []);
 
-  function handleVote(opId) {
-    const vote = votes.find((vote) => vote.openingId === opId); // Asegúrate de usar la clave correcta
+  function handleVote(opId: string) {
+    const vote = votes.find((vote: Vote) => vote.openingId === opId); // Asegúrate de usar la clave correcta
 
     if (vote) {
-      return (
-        <span className="text-white bg-green-500 px-3 py-1 rounded-full">
-          {vote.vote}
-        </span>
-      );
+        return (
+            <span className="text-white bg-green-500 px-3 py-1 rounded-full">
+                {vote.vote}
+            </span>
+        );
     } else {
-      return (
-        <span className="text-white bg-gray-500 px-3 py-1 rounded-full">
-          Sin votar
-        </span>
-      );
+        return (
+            <span className="text-white bg-gray-500 px-3 py-1 rounded-full">
+                Sin votar
+            </span>
+        );
     }
-  }
+}
+
 
   if (loading) {
     return <LoadingIcon />;
@@ -77,18 +91,18 @@ export default function Leaderboard() {
           </tr>
         </thead>
         <tbody>
-          {ops.slice((page - 1) * pageSize, page * pageSize).map((op) => (
+          {ops.slice((page - 1) * pageSize, page * pageSize).map((op: Opening) => (
             <tr
               key={op._id}
               className="odd:bg-gray-50 even:bg-white hover:bg-gray-100 transition-all duration-200"
             >
               <td className="border-t px-6 py-4">
-                <a
-                  href={`pages/openings/${op._id}`}
+                <Link
+                  href={`/${op._id}`} 
                   className="text-blue-500 hover:underline hover:text-blue-700 transition-all duration-200"
                 >
                   {op.title}
-                </a>
+                </Link>
               </td>
               <td className="border-t px-6 py-4 text-center">
                 {handleVote(op._id)}
@@ -115,7 +129,7 @@ export default function Leaderboard() {
         <button
           className="flex items-center justify-center w-12 h-12 pb-1 bg-blue-500 rounded-lg shadow hover:bg-blue-600 transition-all duration-200"
           onClick={() => {
-            if (page > 1) setPage(page - 1);
+            if (page > 1) setPage(page + 1);
           }}
         >
           <span className="text-xl text-white">&raquo;</span>
