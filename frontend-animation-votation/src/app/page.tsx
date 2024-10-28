@@ -36,9 +36,9 @@ export default function Leaderboard() {
   useEffect(() => {
     async function fetchOpenings() {
       try {
-        const res = await fetch(`http://192.168.1.58:4000/api/openings`);
+        const res = await fetch(`${process.env.BASE_URL}/api/openings`);
         const votes = await fetch(
-          `http://192.168.1.58:4000/api/votes/${localStorage.getItem("userId")}`
+          `${process.env.BASE_URL}/api/votes/${localStorage.getItem("userId")}`
         );
 
         if (!res.ok || !votes.ok) throw new Error(`Error: ${res.status}`);

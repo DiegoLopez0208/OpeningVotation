@@ -18,7 +18,7 @@ export default function Home() {
     e.preventDefault();
     
     try {
-      const response = await fetch("http://192.168.1.58:4000/api/login", {
+      const response = await fetch(`${process.env.BASE_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -38,8 +38,8 @@ export default function PostPage() {
   
     async function fetchOpening() {
       try {
-        const opRes = await fetch(`http://192.168.1.58:4000/api/opening/${id}`);
-        const voteRes = await fetch(`http://192.168.1.58:4000/api/votes/${userId}`);
+        const opRes = await fetch(`${process.env.BASE_URL}/api/opening/${id}`);
+        const voteRes = await fetch(`${process.env.BASE_URL}/api/votes/${userId}`);
   
         if (!opRes.ok || !voteRes.ok) throw new Error("Opening no encontrado");
   
