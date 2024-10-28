@@ -70,12 +70,14 @@ export default function PostPage() {
     <div className="w-full bg-gray-200">
       <Image
         src={Kita}
+        unoptimized
         height={150}
         alt="Kita icon"
         className="absolute bottom-0 right-4"
       />
       <Image
         src={Konata}
+        unoptimized
         priority
         height={200}
         alt="Konata icon"
@@ -85,7 +87,7 @@ export default function PostPage() {
         <div className="flex justify-between">
           <button
             onClick={() => (window.location.href = "/pages")}
-            className="text-3xl bg-blue-600 hover:bg-blue-800 text-white mb-4 sm:mr-4 px-4 py-2 sm:rounded-lg transition duration-200 shadow-lg"
+            className="text-3xl bg-blue-600 hover:bg-blue-800 text-white mb-4 sm:mr-4 px-4 sm:rounded-lg transition duration-200 shadow-lg"
           >
             <IoMdHome className="" />
           </button>
@@ -94,7 +96,7 @@ export default function PostPage() {
         </div>
 
         {/* Contenedor del video y título */}
-        <div className="bg-white bg-opacity-90 shadow-2xl hover:shadow-purple-500 sm:rounded-lg sm:p-4 mb-4 border border-gray-300 transition-all duration-200">
+        <div className="bg-white bg-opacity-90 shadow-lg hover:shadow-purple-500 sm:rounded-lg sm:p-4 mb-4 transition-all duration-200">
           <h1 className="text-4xl text-gray-800 sm:my-0 sm:mb-4 my-2">
             {ops.opening.title}
           </h1>
@@ -103,7 +105,7 @@ export default function PostPage() {
         </div>
 
         {/* Slider de votación */}
-        <div className="bg-gray-50 bg-opacity-80 shadow-2xl hover:shadow-purple-500 sm:rounded-lg p-6 mb-6 flex flex-col items-center border border-gray-200 transition-all duration-200">
+        <div className="bg-gray-50 bg-opacity-80 shadow-lg hover:shadow-xl hover:shadow-purple-500 sm:rounded-lg p-6 mb-6 flex flex-col items-center transition-all duration-200">
           <div className="flex items-center w-full gap-4">
             {/* Botón 1 */}
             <button

@@ -17,7 +17,7 @@ export default function VideoPlayer({ src, op }) {
             const currentTime = videoPlayer.currentTime;
     
             // Primera pausa en el segmento inicial
-            if (mode === "rapido" && currentTime >= startTime + 5 && currentTime < chorusTime) {
+            if (mode === "rapido" && currentTime >= startTime + 6 && currentTime < chorusTime) {
                 videoPlayer.pause();
                 videoPlayer.currentTime = chorusTime;
                 videoPlayer.play();
