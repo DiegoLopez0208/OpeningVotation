@@ -18,7 +18,7 @@ export default function Home() {
     e.preventDefault();
     
     try {
-      const response = await fetch(`${process.env.BASE_URL}/api/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f9f9f9]">
+    <div className="h-full flex items-center justify-center bg-[#f9f9f9]">
       <div className="bg-white shadow-xl rounded-xl p-8 max-w-md w-full">
         <h2 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
           Iniciar sesión

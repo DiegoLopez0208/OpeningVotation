@@ -1,8 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import LoadingIcon from "@/app/components/LoadingIcon";
-import ModeChange from "@/app/components/ModeChange";
-import { IoMdHome } from "react-icons/io";
 
 import Link from "next/link";
 
@@ -36,9 +34,9 @@ export default function Leaderboard() {
   useEffect(() => {
     async function fetchOpenings() {
       try {
-        const res = await fetch(`${process.env.BASE_URL}/api/openings`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/openings`);
         const votes = await fetch(
-          `${process.env.BASE_URL}/api/votes/${localStorage.getItem("userId")}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/votes/${localStorage.getItem("userId")}`
         );
 
         if (!res.ok || !votes.ok) throw new Error(`Error: ${res.status}`);
@@ -57,7 +55,7 @@ export default function Leaderboard() {
     }
 
     fetchOpenings();
-  }, []);
+  }, [pageSize]);
 
   function handleVote(opId: string) {
     const vote = votes.find((vote: Vote) => vote.openingId === opId); // Asegúrate de usar la clave correcta
@@ -83,7 +81,7 @@ export default function Leaderboard() {
   }
 
   return (
-    <div className="container sm:w-1/2 mx-auto sm:p-6 bg-gray-200 min-h-screen">
+    <div className="container h-full sm:w-1/2 mx-auto sm:p-6 bg-gray-200">
       <table className="w-full table-auto bg-white shadow-xl sm:rounded-xl overflow-hidden">
         <thead className="bg-gradient-to-r from-blue-500 to-blue-400 text-white">
           <tr>

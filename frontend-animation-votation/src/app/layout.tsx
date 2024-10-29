@@ -13,8 +13,10 @@ export default function RootLayout({  children, }: Readonly<{ children: React.Re
     <html lang="es">
       <body>
         <SettingsProvider>
-          <Navbar />
-          {children}
+          <div className="flex flex-col w-full h-screen">
+            <Navbar />
+            {children}
+          </div>
         </SettingsProvider>
       </body>
     </html>

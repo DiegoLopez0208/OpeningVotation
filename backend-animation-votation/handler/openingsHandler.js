@@ -42,9 +42,9 @@ export function openingsHandler(app) {
                 status: 200,
                 message: 'Opening encontrado',
                 data: {
-                    opening,
-                    previousOpening,
-                    nextOpening                    
+                    op: opening,
+                    prevOp: previousOpening ? previousOpening._id : null,
+                    nextOp: nextOpening ? nextOpening._id : null
                 }
             })
         } catch (error) {
