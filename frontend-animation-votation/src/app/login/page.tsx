@@ -43,7 +43,7 @@ export default function Home() {
   };
 
   return (
-    <div className="h-full flex items-center justify-center bg-[#f9f9f9]">
+    <div className="absolute h-full flex w-full items-center justify-center bg-[#f9f9f9] z-20">
       <div className="bg-white shadow-xl rounded-xl p-8 max-w-md w-full">
         <h2 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
           Iniciar sesión
