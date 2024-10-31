@@ -7,7 +7,6 @@ interface Props {
         start: string;
         chorus: string;
     };
-    mode: string;
 }
 
 export default function VideoPlayer({ src, op }: Props) {
@@ -58,7 +57,9 @@ export default function VideoPlayer({ src, op }: Props) {
         <video
             ref={videoRef}
             src={src}
-            className="w-full h-full object-cover sm:rounded-lg"
+            preload="auto"
+            autoPlay
+            loop
             controls
             muted
         />

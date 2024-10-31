@@ -10,12 +10,15 @@ import ThemeChange from "./ThemeChange";
 
 export default function Navbar( ) {
   return (
-    <div className="w-full h-16 top-0 bg-gray-200 z-10">
-      <div className="mx-auto h-full">
-        <nav className="flex sm:just justify-between items-center mx-auto align-middle h-full bg-blue-600 shadow-lg">
-          <Link href="/" className="text-3xl px-4 bg-cyan-600 hover:bg-blue-800 h-full text-white transition duration-200 shadow-lg flex items-center">
+    <div className="w-full h-16 top-0 bg-gradient-to-br from-blue-500 to-blue-700 z-10">
+      <div className="sm:w-2/3 mx-auto h-full bg-blue-600 shadow-lg">
+        <nav className="flex justify-between items-center mx-auto align-middle h-full sm:border-l-2 border-white border-opacity-25">
+          <Link href="/" className="text-3xl px-4 sm:hover:border-b-4 h-full text-white transition-all duration-50 flex items-center ">
             <IoMdHome className="" />
           </Link>
+          <h1 className="text-3xl text-white">
+            Hola ˆ𐃷ˆ
+          </h1>
           <Menu>
             <ModeChange reload={false} />
             <GifChange />

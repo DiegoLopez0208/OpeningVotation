@@ -1,8 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import LoadingIcon from "@/app/components/LoadingIcon";
-
-import Link from "next/link";
+import OpeningsTable from "@/app/components/OpeningsTable";
+import {
+  BiArrowToRight,
+  BiArrowToLeft,
+  BiRightArrowAlt,
+  BiLeftArrowAlt,
+} from "react-icons/bi";
 
 interface Opening {
   _id: string;
@@ -17,10 +22,10 @@ interface Vote {
 }
 
 export default function Leaderboard() {
-  const [ops, setOps] = useState([]);
+  const [ops, setOps] = useState<Opening[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
-  const [pageSize] = useState<number>(10);
+  const [pageSize] = useState<number>(12);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [votes, setVotes] = useState<Vote[]>([]);
 
@@ -34,9 +39,13 @@ export default function Leaderboard() {
   useEffect(() => {
     async function fetchOpenings() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/openings`);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/openings`
+        );
         const votes = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/votes/${localStorage.getItem("userId")}`
+          `${
+            process.env.NEXT_PUBLIC_BACKEND_URL
+          }/api/votes/${localStorage.getItem("userId")}`
         );
 
         if (!res.ok || !votes.ok) throw new Error(`Error: ${res.status}`);
@@ -57,82 +66,58 @@ export default function Leaderboard() {
     fetchOpenings();
   }, [pageSize]);
 
-  function handleVote(opId: string) {
-    const vote = votes.find((vote: Vote) => vote.openingId === opId); // Asegúrate de usar la clave correcta
-
-    if (vote) {
-        return (
-            <span className="text-white bg-green-500 px-3 py-1 rounded-full">
-                {vote.vote}
-            </span>
-        );
-    } else {
-        return (
-            <span className="text-white bg-gray-500 px-3 py-1 rounded-full">
-                Sin votar
-            </span>
-        );
-    }
-}
-
-
   if (loading) {
     return <LoadingIcon />;
   }
 
   return (
-    <div className="container h-full sm:w-1/2 mx-auto sm:p-6 bg-gray-200">
-      <table className="w-full table-auto bg-white shadow-xl sm:rounded-xl overflow-hidden">
-        <thead className="bg-gradient-to-r from-blue-500 to-blue-400 text-white">
-          <tr>
-            <th className="px-6 py-4 text-left">Nombre del Anime</th>
-            <th className="px-6 py-4 text-center">Puntuación</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ops.slice((page - 1) * pageSize, page * pageSize).map((op: Opening) => (
-            <tr
-              key={op._id}
-              className="odd:bg-gray-50 even:bg-white hover:bg-gray-100 transition-all duration-200"
-            >
-              <td className="border-t px-6 py-4">
-                <Link
-                  href={`/${op._id}`} 
-                  className="text-blue-500 hover:underline hover:text-blue-700 transition-all duration-200"
-                >
-                  {op.title}
-                </Link>
-              </td>
-              <td className="border-t px-6 py-4 text-center">
-                {handleVote(op._id)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="sm:w-4/6 sm:mx-auto h-auto">
+      <div className="h-full flex justify-center items-center flex-col mx-4 my-3">
+        <OpeningsTable
+          ops={ops}
+          votes={votes}
+          page={page}
+          pageSize={pageSize}
+        />
+        <div className="fixed bottom-4 w-fit text-center text-xl bg-white shadow-xl rounded-xl p-2 mt-5 flex justify-center align-middle gap-2">
+          <button
+            className="p px-3 text-white bg-blue-400 rounded-lg"
+            onClick={() => {
+              if (page > 1) setPage(1);
+            }}
+          >
+            <BiArrowToLeft />
+          </button>
+          <button
+            className="p-2 px-3 text-white bg-blue-400 rounded-lg"
+            onClick={() => {
+              if (page > 1) setPage(page - 1);
+            }}
+          >
+            <BiLeftArrowAlt />
+          </button>
 
-      <div className="mt-6 flex justify-center items-center space-x-4">
-        <button
-          className="flex items-center justify-center w-12 h-12 pb-1 bg-blue-500 rounded-lg shadow hover:bg-blue-600 transition-all duration-200"
-          onClick={() => {
-            if (page > 1) setPage(page - 1);
-          }}
-        >
-          <span className="text-xl text-white">&laquo;</span>
-        </button>
+          <span className="p-2">
+            Página {page} de {totalPages}
+          </span>
 
-        <span className="text-lg font-semibold">
-          Página {page} de {totalPages}
-        </span>
-
-        <button
-          className="flex items-center justify-center w-12 h-12 pb-1 bg-blue-500 rounded-lg shadow hover:bg-blue-600 transition-all duration-200"
-          onClick={() => {
-            if (page > 1) setPage(page + 1);
-          }}
-        >
-          <span className="text-xl text-white">&raquo;</span>
-        </button>
+          <button
+            className="p-2 px-3 text-white bg-blue-400 rounded-lg"
+            onClick={() => {
+              if (page < totalPages) setPage(page + 1);
+            }}
+          >
+            <BiRightArrowAlt />
+          </button>
+          <button
+            className="p-2 px-3 text-white bg-blue-400 rounded-lg"
+            onClick={() => {
+              if (page < totalPages) setPage(totalPages);
+            }}
+          >
+            <BiArrowToRight />
+          </button>
+        </div>
       </div>
     </div>
   );

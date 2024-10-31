@@ -8,7 +8,7 @@ export default function LogOut() {
 
   return (
     <button
-      className=" bg-white hover:bg-gray-100 p-3 flex flex-row justify-between border-b-2 items-center font-semibold w-full transition-all duration-200"
+      className=" bg-white hover:bg-gray-100 p-3 flex flex-row justify-between sm:rounded-b-lg items-center font-semibold w-full transition-all duration-200"
       onClick={handleLogOut}
     >
       <span>Cerrar sesión</span>
