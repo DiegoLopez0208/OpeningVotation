@@ -1,52 +1,93 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 interface SettingsContextType {
-    mode: string; // Modo de reproducción
-    gifsEnabled: boolean; // Estado de los GIFs
-    setMode: (newMode: string) => void; // Cambiar el modo de reproducción
-    setGifsEnabled: (enabled: boolean) => void; // Cambiar el estado de los GIFs
+  isSettingsOpen: boolean;
+  isDarkMode: boolean;
+  isQuickView: boolean;
+  isShowGifs: boolean;
+  updateQuickView: (enabled: boolean) => void;
+  updateShowGifs: (enabled: boolean) => void;
+  updateDarkMode: (enabled: boolean) => void;
+  updateSettingsOpen: (enabled: boolean) => void;
 }
 
-const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+const SettingsContext = createContext<SettingsContextType | undefined>(
+  undefined
+);
 
-export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [mode, setMode] = useState<string>("normal");
-    const [gifsEnabled, setGifsEnabled] = useState<boolean>(true);
+export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isQuickView, setIsQuickView] = useState(false);
+  const [isShowGifs, setShowGifs] = useState(true);
 
-    useEffect(() => {
-        const savedMode = localStorage.getItem("mode");
-        const savedGifsEnabled = localStorage.getItem("gifsEnabled");
+  useEffect(() => {
+    const savedIsQuickView = localStorage.getItem("isQuickView");
+    const savedIsDarkMode = localStorage.getItem("isDarkMode");
+    const savedIsShowGifs = localStorage.getItem("isShowGifs");
 
-        if (savedMode) {
-            setMode(savedMode);
-        }
-        if (savedGifsEnabled !== null) {
-            setGifsEnabled(savedGifsEnabled === "true"); // Convertir a booleano
-        }
-    }, []);
+    if (savedIsQuickView) {
+      setIsQuickView(savedIsQuickView === "true" ? true : false); // Convertir a booleano
+    }
+    if (savedIsShowGifs) {
+      setShowGifs(savedIsShowGifs === "true" ? true : false); // Convertir a booleano
+    }
 
-    const updateMode = (newMode: string) => {
-        setMode(newMode);
-        localStorage.setItem("mode", newMode);
-    };
+    if (savedIsDarkMode) {
+      setIsDarkMode(savedIsDarkMode === "true" ? true : false); // Convertir a booleano
+    }
+  }, []);
 
-    const updateGifsEnabled = (enabled: boolean) => {
-        setGifsEnabled(enabled);
-        localStorage.setItem("gifsEnabled", enabled.toString()); // Guardar como string
-    };
+  const updateQuickView = (enabled: boolean) => {
+    setIsQuickView(enabled);
+    localStorage.setItem("isQuickView", enabled.toString());
+  };
 
-    return (
-        <SettingsContext.Provider value={{ mode, gifsEnabled, setMode: updateMode, setGifsEnabled: updateGifsEnabled }}>
-            {children}
-        </SettingsContext.Provider>
-    );
+  const updateShowGifs = (enabled: boolean) => {
+    setShowGifs(enabled);
+    localStorage.setItem("isShowGifs", enabled.toString());
+  };
+
+  const updateDarkMode = (enabled: boolean) => {
+    setIsDarkMode(enabled);
+    localStorage.setItem("isDarkMode", enabled.toString());
+  };
+
+  const updateSettingsOpen = (enabled: boolean) => {
+    setIsSettingsOpen(enabled);
+  };
+
+  return (
+    <SettingsContext.Provider
+      value={{
+        isSettingsOpen,
+        isDarkMode,
+        isQuickView,
+        isShowGifs,
+        updateQuickView,
+        updateShowGifs,
+        updateDarkMode,
+        updateSettingsOpen,
+      }}
+    >
+      {children}
+    </SettingsContext.Provider>
+  );
 };
 
 export const useSettings = () => {
-    const context = useContext(SettingsContext);
-    if (context === undefined) {
-        throw new Error("useSettings must be used within a SettingsProvider");
-    }
-    return context;
+  const context = useContext(SettingsContext);
+  if (context === undefined) {
+    throw new Error("useSettings must be used within a SettingsProvider");
+  }
+  return context;
 };

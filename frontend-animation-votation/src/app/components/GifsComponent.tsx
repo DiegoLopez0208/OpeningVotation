@@ -4,13 +4,13 @@ import Kita from "@/app/img/kita-chan-kitaikuyo.gif";
 import Konata from "@/app/img/konata.gif";
 
 const GifsComponent = () => {
-  const { gifsEnabled } = useSettings();
+  const { isShowGifs } = useSettings();
 
   return (
     <>
       <Image
         src={Kita}
-        hidden={!gifsEnabled}
+        hidden={!isShowGifs}
         unoptimized
         height={150}
         alt="Kita icon"
@@ -18,7 +18,7 @@ const GifsComponent = () => {
       />
       <Image
         src={Konata}
-        hidden={!gifsEnabled}
+        hidden={!isShowGifs}
         unoptimized
         priority
         height={200}
