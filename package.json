@@ -9,7 +9,7 @@
   "start": "concurrently -n \"Frontend,Backend\" -c \"blue,green\" \"npm run start:backend\" \"npm run start:frontend\"",
   "dev:frontend": "cd frontend-animation-votation && npm run dev",
   "dev:backend": "cd backend-animation-votation && npm run dev",
-  "dev": "concurrently -n \"Frontend,Backend\" -c \"magenta,cyan\" \"npm run dev:backend\" \"npm run dev:frontend\""
+  "dev": "concurrently -n \"Backend,Frontend\" -c \"magenta,red\" \"npm run dev:backend\" \"npm run dev:frontend\""
 },
 
   "author": "",
