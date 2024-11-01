@@ -7,13 +7,14 @@ export function votesHandler(app) {
     const votes = await voteSchema.find({ userId: req.params.id });
 
     if (votes.length === 0) {
-      return res.status(404).send({
+      return res.send({
         status: 404,
         message: "No se encontraron votos para este usuario",
+        data: [],
       });
     }
 
-    res.send({
+    return res.send({
       status: 200,
       message: "Votos encontrados",
       data: votes,

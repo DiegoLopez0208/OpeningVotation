@@ -16,11 +16,14 @@ export default function VideoPlayer({ src, op, className }: Props) {
 
     useEffect(() => {
         if (!videoRef.current) return;
-    
+
+        
         const videoPlayer = videoRef.current;
         const startTime = parseInt(op.start, 10);
         const chorusTime = parseInt(op.chorus, 10);
-    
+
+        videoPlayer.volume = 0.5
+        
         // Función de reproducción segmentada
         const handleTimeUpdate = () => {
             const currentTime = videoPlayer.currentTime;
@@ -58,10 +61,11 @@ export default function VideoPlayer({ src, op, className }: Props) {
             ref={videoRef}
             preload="auto"
             className={className}
+            width={1920}
+            height={1080}
             autoPlay
             loop
             controls
-            muted
         >
             <source src={src} type="video/webm" />
             Tu navegador no soporta la extension de video.

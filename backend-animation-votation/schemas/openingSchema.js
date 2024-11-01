@@ -7,15 +7,18 @@ const openingSchema = new Schema({
     },
     url: {
         type: String,
-        required: true
+        required: true,
     },
     start: {
         type: Number,
-        required: true
+        required: true,
     },
     chorus: {
         type: Number,
-        required: true
+        required: true,
+    },
+    alphabeticalOrder: {
+        type: Number,
     }
 });
 

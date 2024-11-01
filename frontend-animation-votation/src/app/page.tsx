@@ -36,9 +36,11 @@ export default function Leaderboard() {
   useEffect(() => {
     async function fetchOpenings() {
       try {
+        console.log("Fetching openings a: ",`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/openings`);
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/openings`
         );
+        console.log("Fetching votos...");
         const votes = await fetch(
           `${
             process.env.NEXT_PUBLIC_BACKEND_URL
@@ -49,6 +51,8 @@ export default function Leaderboard() {
 
         const opData = await res.json();
         const votesData = await votes.json();
+
+        console.log(opData);
 
         setOps(opData.openings);
 
