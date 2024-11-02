@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import LoadingIcon from "@/app/components/LoadingIcon";
 import VideoPlayer from "@/app/components/VideoPlayer";
-import GifsComponent from "@/app/components/GifsComponent";
+// import GifsComponent from "@/app/components/GifsComponent";
 import Link from "next/link";
 
 interface Vote {
@@ -16,14 +16,23 @@ interface Vote {
 
 export default function PostPage() {
   const { id } = useParams();
-  const [userId, setUserId] = useState<string | null>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [ops, setOps] = useState<any>(null);
-  const [elevenVote, setElevenVote] = useState<boolean>();
-  const [ceroVote, setCeroVote] = useState<boolean>();
-  const [opVote, setOpVote] = useState<Vote>();
+  const [userId, setUserId] = useState<string | null>(null);
+  const [ops, setOps] = useState<any>(null); // eslint-disable-line
+  const [elevenVote, setElevenVote] = useState<boolean>(false);
+  const [ceroVote, setCeroVote] = useState<boolean>(false);
+  const [opVote, setOpVote] = useState<Vote | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [value, setValue] = useState<number>(5.5);
+  const [showAlert, setShowAlert] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string>("");
+  const [showVoteAlert, setShowVoteAlert] = useState<boolean>(false);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      window.location.href = "/login";
+    }
+  }, []);
 
   const fetchVotes = useCallback(async () => {
     try {
@@ -33,13 +42,11 @@ export default function PostPage() {
       const { data } = await response.json();
 
       const userVote = data.find((vote: Vote) => vote.openingId === id);
-      setOpVote(userVote ? userVote : { value: 0 });
+      setOpVote(userVote || null);
       setValue(userVote ? userVote.vote : -1);
 
       setElevenVote(data.some((vote: Vote) => vote.vote === 11));
       setCeroVote(data.some((vote: Vote) => vote.vote === 0));
-
-      console.log("Respuesta del servidor:", data);
     } catch (error) {
       console.error("Error en la solicitud:", error);
     }
@@ -64,8 +71,6 @@ export default function PostPage() {
         const opData = await opRes.json();
         await fetchVotes();
         setOps(opData.data);
-
-        console.log(opData.data);
       } catch (error) {
         console.error("Error al obtener el opening:", error);
       } finally {
@@ -80,15 +85,23 @@ export default function PostPage() {
     setValue(Number(e.target.value));
   };
 
+  const handleVote = async () => {
+    if (value === 11 || value === 0) {
+      setAlertMessage(
+        value === 11
+          ? "¿Estás seguro de utilizar el voto 11?"
+          : "¿Estás seguro de utilizar el voto 0?"
+      );
+      setShowAlert(true);
+    } else if (value === -1) {
+      alert("Elige un número para poder votar!");
+    } else {
+      await sendVote();
+    }
+  };
+
   const sendVote = async () => {
     if (!userId) return;
-
-    if (value === 11) confirm("Estas seguro de utilizar el voto 11?");
-    if (value === 0) confirm("Estas seguro de utilizar el voto 0?");
-    if (value === -1) {
-      alert("Elegi un numero para poder votar!");
-      return;
-    }
 
     try {
       const response = await fetch(
@@ -105,10 +118,11 @@ export default function PostPage() {
           }),
         }
       );
-      const data = await response.json();
-      console.log("Respuesta del servidor:", data);
 
-      await fetchVotes(); // Actualiza los votos después de enviar el voto
+      if (!response.ok) throw new Error("Error al enviar el voto");
+
+      await fetchVotes();
+      setShowVoteAlert(true);
     } catch (error) {
       console.error("Error en la solicitud:", error);
     }
@@ -116,32 +130,13 @@ export default function PostPage() {
 
   if (loading) return <LoadingIcon />;
 
-  if (!ops) {
-    return (
-      <div className="min-h-screen bg-blue-50 dark:bg-gray-900 transition-colors duration-200 sm:p-4 pt-4">
-      <div className="container mx-auto w-fit rounded-lg border-2 dark:border-blue-700 dark:bg-gray-800">
-        {/* Card */}
-        <div className="max-w-4xl mx-auto rounded-lg">
-          {/* Card Header */}
-          <div className="text-4xl dark:text-blue-200 font-bold text-center m-4 sm:m-6">
-            🤨 No existe el opening...
-          </div>
-        </div>
-      </div>
-    </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-blue-50 dark:bg-gray-900 transition-colors duration-200 sm:p-4 pt-4">
       <div className="container mx-auto w-fit rounded-lg border-2 dark:border-blue-700 dark:bg-gray-800">
-        {/* Card */}
         <div className="max-w-4xl mx-auto rounded-lg shadow-lg">
-          {/* Card Header */}
           <div className="text-2xl dark:text-blue-200 font-bold text-center m-4 sm:m-6">
-            {ops.op.title || "Cargando..."}
+            {ops ? ops.op.title : "Cargando..."}
           </div>
-          {/* Card Content */}
           <div className="space-y-6">
             <div className="aspect-video sm:mx-6">
               <VideoPlayer
@@ -151,7 +146,6 @@ export default function PostPage() {
               />
             </div>
             <div className="flex flex-col items-center space-y-4 sm:w-9/12 w-full mx-auto pb-6 px-6">
-              {/* Slider */}
               <input
                 type="range"
                 className="w-full"
@@ -162,7 +156,6 @@ export default function PostPage() {
                 step={0.5}
               />
               <div className="w-full flex justify-between">
-                {/* Button */}
                 <button
                   onClick={() => {
                     if (!ceroVote) setValue(0);
@@ -176,7 +169,7 @@ export default function PostPage() {
                   0
                 </button>
                 <span className="text-4xl dark:text-blue-200 font-bold">
-                  {value == -1 ? "^ Selecciona un voto ^" : value}
+                  {value === -1 ? "Selecciona un voto" : value}
                 </span>
                 <button
                   onClick={() => {
@@ -184,22 +177,22 @@ export default function PostPage() {
                   }}
                   className={`text-white h-10 w-12 rounded-lg font-thin ${
                     elevenVote
-                      ? "bg-gray-400 cursor-not-allowed" 
-                      : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"                      
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
                   }`}
                 >
                   11
                 </button>
               </div>
               <button
-                onClick={sendVote}
+                onClick={handleVote}
                 className={`text-white px-4 w-full py-2 ${
-                  opVote?.vote == value
+                  opVote?.vote === value
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
                 } rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
               >
-                {opVote?.vote == value ? (
+                {opVote?.vote === value ? (
                   <span>Voto enviado</span>
                 ) : (
                   <span>Enviar voto</span>
@@ -208,11 +201,9 @@ export default function PostPage() {
             </div>
           </div>
           <div className="w-full flex justify-between p-6">
-          <Link
-
+            <Link
               href={ops.prevOp ? `/${ops.prevOp}` : "/"}
-              className={`px-4 py-2 text-white rounded-md
-              ${
+              className={`px-4 py-2 text-white rounded-md ${
                 ops.prevOp
                   ? "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
                   : "bg-gray-400 cursor-not-allowed"
@@ -222,8 +213,7 @@ export default function PostPage() {
             </Link>
             <Link
               href={ops.nextOp ? `/${ops.nextOp}` : "/"}
-              className={`px-4 py-2 text-white rounded-md
-              ${
+              className={`px-4 py-2 text-white rounded-md ${
                 ops.nextOp
                   ? "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
                   : "bg-gray-400 cursor-not-allowed"
@@ -234,7 +224,51 @@ export default function PostPage() {
           </div>
         </div>
       </div>
-      <GifsComponent />
+      {showAlert && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-md max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-2 dark:text-blue-200">
+              Confirmación de Voto
+            </h2>
+            <p className="mb-4 dark:text-blue-200">{alertMessage}</p>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setShowAlert(false)}
+                className="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded hover:bg-gray-400 dark:hover:bg-gray-600"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={async () => {
+                  setShowAlert(false);
+                  await sendVote();
+                }}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showVoteAlert && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-md max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-2 dark:text-blue-200">
+              Voto Realizado
+            </h2>
+            <p className="mb-4 dark:text-blue-200">
+              Tu voto ha sido registrado con éxito.
+            </p>
+            <button
+              onClick={() => setShowVoteAlert(false)}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -25,6 +25,8 @@ export function votesHandler(app) {
   app.post("/api/vote", async (req, res) => {
     const { openingId, userId, vote } = req.body;
 
+    console.log("Recibido:", { openingId, userId, vote }); // Agregar depuración aquí
+
     try {
       // Verificar si ya existe un voto del usuario para el opening
       const existingVote = await voteSchema.findOne({ openingId, userId });
@@ -58,17 +60,30 @@ export function votesHandler(app) {
 
       // Crear un nuevo voto
       const user = await userSchema.findOne({ _id: userId });
+
+      // Verificar si el usuario fue encontrado
+      if (!user) {
+        console.error("Usuario no encontrado para el ID:", userId); // Mensaje de error
+        return res.status(404).send({
+          status: 404,
+          message: "Usuario no encontrado",
+        });
+      }
+
+      console.log("Usuario encontrado:", user.username); // Agregar depuración aquí
+
       const newVote = new voteSchema({
         openingId,
         userId,
-        submittedBy: user.username,
+        submittedBy: user.username, // Accede a username solo si el usuario fue encontrado
         vote,
       });
 
       await newVote.save();
-      return res
-        .status(201)
-        .send({ status: 201, message: "Voto agregado correctamente!" });
+      return res.status(201).send({
+        status: 201,
+        message: "Voto agregado correctamente!",
+      });
     } catch (error) {
       console.error("Error al procesar el voto:", error);
       return res.status(500).send({
