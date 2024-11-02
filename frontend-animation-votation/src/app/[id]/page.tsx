@@ -3,8 +3,9 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import LoadingIcon from "@/app/components/LoadingIcon";
 import VideoPlayer from "@/app/components/VideoPlayer";
-// import GifsComponent from "@/app/components/GifsComponent";
 import Link from "next/link";
+import Slider from "@mui/material/Slider";
+import styled from "@emotion/styled";
 
 interface Vote {
   openingId: string;
@@ -13,6 +14,29 @@ interface Vote {
   _id: string;
   submittedBy: string;
 }
+const CustomSlider = styled(Slider)(({}) => ({
+  color: "#1976D2",
+  height: 10,
+  "& .MuiSlider-thumb": {
+    height: 24,
+    width: 24,
+    backgroundColor: "white",
+    border: "2px solid currentColor",
+    marginTop: 0,
+    "&:focus, &:hover, &.Mui-active": {
+      boxShadow: "inherit",
+    },
+  },
+  "& .MuiSlider-rail": {
+    height: 5,
+    borderRadius: 4,
+    backgroundColor: "#bfbfbf",
+  },
+  "& .MuiSlider-track": {
+    height: 8,
+    borderRadius: 4,
+  },
+}));
 
 export default function PostPage() {
   const { id } = useParams();
@@ -81,8 +105,8 @@ export default function PostPage() {
     fetchOpening();
   }, [id, userId, fetchVotes]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(Number(e.target.value));
+  const handleChange = (event: Event, newValue: number | number[]) => {
+    setValue(newValue as number); // Asegúrate de manejar el caso de rango si es necesario
   };
 
   const handleVote = async () => {
@@ -146,14 +170,14 @@ export default function PostPage() {
               />
             </div>
             <div className="flex flex-col items-center space-y-4 sm:w-9/12 w-full mx-auto pb-6 px-6">
-              <input
-                type="range"
-                className="w-full"
+              <CustomSlider
                 value={value}
+                className="w-full"
                 onChange={handleChange}
                 min={1}
                 max={10}
                 step={0.5}
+                defaultValue={5.5}
               />
               <div className="w-full flex justify-between">
                 <button
@@ -234,16 +258,13 @@ export default function PostPage() {
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setShowAlert(false)}
-                className="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded hover:bg-gray-400 dark:hover:bg-gray-600"
+                className="bg-gray-300 rounded px-4 py-2"
               >
                 Cancelar
               </button>
               <button
-                onClick={async () => {
-                  setShowAlert(false);
-                  await sendVote();
-                }}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+                onClick={sendVote}
+                className="bg-blue-500 text-white rounded px-4 py-2"
               >
                 Aceptar
               </button>
@@ -258,14 +279,16 @@ export default function PostPage() {
               Voto Realizado
             </h2>
             <p className="mb-4 dark:text-blue-200">
-              Tu voto ha sido registrado con éxito.
+              Tu voto ha sido registrado.
             </p>
-            <button
-              onClick={() => setShowVoteAlert(false)}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
-            >
-              Cerrar
-            </button>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setShowVoteAlert(false)}
+                className="bg-blue-500 text-white rounded px-4 py-2"
+              >
+                Aceptar
+              </button>
+            </div>
           </div>
         </div>
       )}
