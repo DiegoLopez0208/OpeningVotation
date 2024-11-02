@@ -23,7 +23,7 @@ export function openingsHandler(app) {
   app.get("/api/opening/:id", async (req, res) => {
     try {
       // Obtener el opening actual por su ID
-      const opening = await Opening.findById(req.params.id);
+      const opening = await Opening.findById(req.params.id).sort({ title: 1 });
 
       if (!opening) {
         return res.send({
@@ -34,13 +34,13 @@ export function openingsHandler(app) {
 
       // Obtener el opening anterior en orden alfabético
       const previousOpening = await Opening.findOne({
-        alphabeticalOrder: { $lt: opening.alphabeticalOrder },
-      }).sort({ alphabeticalOrder: -1 }); // Orden descendente para obtener el más cercano
+        title: { $lt: opening.title },
+      }).sort({ title: -1 }); // Orden descendente para obtener el más cercano
 
       // Obtener el opening siguiente en orden alfabético
       const nextOpening = await Opening.findOne({
-        alphabeticalOrder: { $gt: opening.alphabeticalOrder },
-      }).sort({ alphabeticalOrder: 1 }); // Orden ascendente para obtener el más cercano
+        title: { $gt: opening.title },
+      }).sort({ title: 1 }); // Orden ascendente para obtener el más cercano
 
       res.send({
         status: 200,
@@ -62,7 +62,7 @@ export function openingsHandler(app) {
 
   // GET /openings
   app.get("/api/openings", async (req, res) => {
-    const openings = await Opening.find().sort({ alphabeticalOrder: 1 });
+    const openings = await Opening.find().sort({ title: 1 });
 
     if (!openings) {
       return res.send({

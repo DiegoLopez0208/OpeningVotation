@@ -36,7 +36,10 @@ export default function Leaderboard() {
   useEffect(() => {
     async function fetchOpenings() {
       try {
-        console.log("Fetching openings a: ",`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/openings`);
+        console.log(
+          "Fetching openings a: ",
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/openings`
+        );
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/openings`
         );
@@ -77,11 +80,26 @@ export default function Leaderboard() {
   }, [pageSize]);
 
   if (loading) {
-    return <LoadingIcon />;
+    return (
+    <div
+      className={`min-h-screen ${
+        isDarkMode
+          ? "dark"
+          : ""
+      }`}
+    >
+      <LoadingIcon />
+    </div>)
   }
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "dark" : ""}`}>
+    <div
+      className={`min-h-screen ${
+        isDarkMode
+          ? "dark  transition-colors duration-200"
+          : " transition-colors duration-200"
+      }`}
+    >
       <div className="min-h-screen bg-blue-50 dark:bg-gray-900 transition-colors duration-200">
         <main className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
@@ -89,47 +107,49 @@ export default function Leaderboard() {
               Votación de openings
             </h1>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {ops.slice((page - 1) * pageSize, page * pageSize).map((op, index) => {
-                const vote = votesMap[op._id]?.vote;
+              {ops
+                .slice((page - 1) * pageSize, page * pageSize)
+                .map((op, index) => {
+                  const vote = votesMap[op._id]?.vote;
 
-                return (
-                  <motion.div
-                    initial={{ opacity: 0, y: -2 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2, delay: index * 0.03 }}
-                    viewport={{ once: true }}
-                    key={op._id}
-                    className="bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-lg shadow-sm overflow-hidden transition-colors duration-200"
-                  >
-                    <div className="p-4">
-                      <h2 className="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2 transition-colors duration-200">
-                        {op.title}
-                      </h2>
-                      <div className="flex items-center justify-between">
-                        <span
-                          className={`text-2xl font-bold transition-colors duration-200 ${
-                            vote === 0
-                              ? "text-red-400"
-                              : vote === 11
-                              ? "text-purple-400"
-                              : vote !== undefined
-                              ? "text-blue-600 dark:text-blue-400"
-                              : "text-gray-500 dark:text-gray-500"
-                          }`}
-                        >
-                          {vote ?? "Sin votar"}
-                        </span>
+                  return (
+                    <motion.div
+                      initial={{ opacity: 0, y: -2 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2, delay: index * 0.03 }}
+                      viewport={{ once: true }}
+                      key={op._id}
+                      className="bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-lg shadow-sm overflow-hidden transition-colors duration-200"
+                    >
+                      <div className="p-4">
+                        <h2 className="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2 transition-colors duration-200">
+                          {op.title}
+                        </h2>
+                        <div className="flex items-center justify-between">
+                          <span
+                            className={`text-2xl font-bold transition-colors duration-200 ${
+                              vote === 0
+                                ? "text-red-400"
+                                : vote === 11
+                                ? "text-purple-400"
+                                : vote !== undefined
+                                ? "text-blue-600 dark:text-blue-400"
+                                : "text-gray-500 dark:text-gray-500"
+                            }`}
+                          >
+                            {vote ?? "Sin votar"}
+                          </span>
 
-                        <Link href={`/${op._id}`} passHref>
-                          <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                            Votar
-                          </button>
-                        </Link>
+                          <Link href={`/${op._id}`} passHref>
+                            <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                              Votar
+                            </button>
+                          </Link>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+                    </motion.div>
+                  );
+                })}
             </div>
             <div className="mt-8 flex justify-center">
               <nav className="inline-flex rounded-md shadow">
@@ -158,9 +178,7 @@ export default function Leaderboard() {
                   </button>
                 ))}
                 <button
-                  onClick={() =>
-                    setPage(Math.min(totalPages, page + 1))
-                  }
+                  onClick={() => setPage(Math.min(totalPages, page + 1))}
                   className={`px-3 py-2 rounded-r-md text-sm font-medium ${
                     page === totalPages
                       ? "bg-blue-100 dark:bg-blue-800 text-blue-400 dark:text-blue-300 cursor-not-allowed"

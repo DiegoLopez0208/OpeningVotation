@@ -1,6 +1,6 @@
 export default function LoadingIcon() {
   return (
-    <div className="min-h-screen h-full bg-blue-50 dark:bg-gray-900 transition-colors duration-200 flex justify-center items-centerr">
+    <div className="min-h-screen h-full bg-blue-50 dark:bg-gray-900 flex justify-center items-centerr">
       <div className="text-3xl flex dark:text-white justify-center items-center gap-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"

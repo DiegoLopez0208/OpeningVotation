@@ -50,9 +50,6 @@ export default function Navbar() {
             </svg>
           </Link>
           <div className="flex items-center">
-            <h1 className="text-3xl text-white">Hola ˆ𐃷ˆ</h1>
-          </div>
-          <div className="flex items-center">
             <button
               onClick={() => updateSettingsOpen(!isSettingsOpen)}
               className="relative p-2 rounded-full text-white hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-800 focus:ring-white transition-colors duration-200"
@@ -169,7 +166,7 @@ export default function Navbar() {
                     </button>
                   </div>
                 </div>
-                <div className="px-4 py-4 bg-gray-50 dark:bg-gray-700 text-right">
+                <div className="px-4 py-4 bg-gray-50 dark:bg-gray-700 text-right transition ease-in-out duration-200">
                   <button
                     onClick={handleLogout}
                     className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"

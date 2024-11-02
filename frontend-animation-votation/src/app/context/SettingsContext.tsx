@@ -45,6 +45,9 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
     if (savedIsDarkMode) {
       setIsDarkMode(savedIsDarkMode === "true" ? true : false); // Convertir a booleano
     }
+    else {
+      setIsDarkMode(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
   }, []);
 
   const updateQuickView = (enabled: boolean) => {
