@@ -25,7 +25,7 @@ export default function VideoPlayer({ src, op, className }: Props) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [controlsVisible, setControlsVisible] = useState(true);
+  const [controlsVisible] = useState(true);
   const isSeeking = useRef(false);
 
   useEffect(() => {
