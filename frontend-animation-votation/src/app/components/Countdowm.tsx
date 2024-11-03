@@ -33,10 +33,10 @@ const Countdown: React.FC = () => {
     }, 1000); // Actualiza cada segundo
 
     return () => clearInterval(timer); // Limpia el intervalo al desmontar el componente
-  }, []);
+  });
 
   return (
-    <div className='text-blue-300 font-bold text-4xl '>
+    <div className='text-blue-800 dark:text-blue-300 font-bold text-4xl '>
       {timeLeft.days >= 0 ? (
         <div className='flex flex-col w-full items-center mb-4'>
           <table className='text-center mb-2 w-fit'>
