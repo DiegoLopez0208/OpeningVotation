@@ -25,52 +25,44 @@ export default function VideoPlayer({ src, op, className }: Props) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [controlsVisible] = useState(true);
-  const isSeeking = useRef(false);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const videoPlayer = videoRef.current;
     if (videoPlayer) {
+      const startTime = parseInt(op.start, 10);
+      const chorusTime = parseInt(op.chorus, 10);
       videoPlayer.volume = volume;
 
       const handleTimeUpdate = () => {
-        if (!isSeeking.current) {
-          setCurrentTime(videoPlayer.currentTime);
+        const currentTime = videoPlayer.currentTime;
+        setCurrentTime(currentTime);
+
+        if (isQuickView) {
+          if (currentTime >= startTime + 6 && currentTime < chorusTime) {
+            videoPlayer.currentTime = chorusTime;
+          } else if (currentTime >= chorusTime + 15) {
+            videoPlayer.pause();
+            videoPlayer.currentTime = chorusTime + 15;
+          }
         }
       };
 
       videoPlayer.addEventListener("timeupdate", handleTimeUpdate);
+      setDuration(videoPlayer.duration);
 
       return () => {
         videoPlayer.removeEventListener("timeupdate", handleTimeUpdate);
       };
     }
-  }, [volume]);
+  }, [isQuickView, op]);
 
   useEffect(() => {
-    const videoPlayer = videoRef.current;
-    if (videoPlayer && isQuickView) {
-      const startTime = parseInt(op.start, 10);
-      const chorusTime = parseInt(op.chorus, 10);
-
-      const handleQuickViewLogic = () => {
-        const currentTime = videoPlayer.currentTime;
-        if (currentTime >= startTime + 6 && currentTime < chorusTime) {
-          videoPlayer.currentTime = chorusTime;
-        } else if (currentTime >= chorusTime + 15) {
-          videoPlayer.pause();
-        }
-      };
-
-      videoPlayer.currentTime = startTime;
-      videoPlayer.play();
-      videoPlayer.addEventListener("timeupdate", handleQuickViewLogic);
-
-      return () => {
-        videoPlayer.removeEventListener("timeupdate", handleQuickViewLogic);
-      };
+    if (videoRef.current) {
+      videoRef.current.volume = volume;
     }
-  }, [isQuickView, op]);
+  }, [volume]);
 
   const togglePlayPause = () => {
     const videoPlayer = videoRef.current;
@@ -85,20 +77,16 @@ export default function VideoPlayer({ src, op, className }: Props) {
   };
 
   const handleVolumeChange = (_event: Event, newValue: number | number[]) => {
-    setVolume(newValue as number);
+    const newVolume = newValue as number;
+    setVolume(newVolume);
   };
 
   const handleSliderChange = (_event: Event, newValue: number | number[]) => {
-    isSeeking.current = true;
-    setCurrentTime(newValue as number);
-  };
-
-  const handleSliderCommit = () => {
-    const videoPlayer = videoRef.current;
-    if (videoPlayer) {
-      videoPlayer.currentTime = currentTime;
+    if (videoRef.current) {
+      const newTime = newValue as number;
+      videoRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
     }
-    isSeeking.current = false;
   };
 
   const handleVolumeClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -109,6 +97,9 @@ export default function VideoPlayer({ src, op, className }: Props) {
     setAnchorEl(null);
   };
 
+  const open = Boolean(anchorEl);
+  const id = open ? "volume-popover" : undefined;
+
   const toggleFullscreen = () => {
     if (videoRef.current) {
       if (!isFullscreen) {
@@ -117,6 +108,7 @@ export default function VideoPlayer({ src, op, className }: Props) {
         document.exitFullscreen();
       }
       setIsFullscreen(!isFullscreen);
+      setControlsVisible(true);
     }
   };
 
@@ -126,8 +118,18 @@ export default function VideoPlayer({ src, op, className }: Props) {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
+  const handleMouseMove = () => {
+    setControlsVisible(true);
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+    controlsTimeoutRef.current = setTimeout(() => {
+      setControlsVisible(false);
+    }, 2000);
+  };
+
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${className}`} onMouseMove={handleMouseMove}>
       <video
         ref={videoRef}
         preload="auto"
@@ -145,11 +147,19 @@ export default function VideoPlayer({ src, op, className }: Props) {
         Tu navegador no soporta la extensión de video.
       </video>
       {controlsVisible && (
-        <Box className={`absolute bottom-0 left-0 right-0 p-4 ${isDarkMode ? "bg-gray-900 bg-opacity-70" : "bg-gray-300"}`}>
+        <Box
+          className={`absolute bottom-0 left-0 right-0 p-4 ${
+            isDarkMode ? "bg-gray-900 bg-opacity-70" : "bg-gray-300"
+          }`}
+        >
           <Typography color={isDarkMode ? "white" : "black"}>
             {formatTime(currentTime)} / {formatTime(duration)}
           </Typography>
-          <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
             <IconButton onClick={togglePlayPause} color="primary">
               {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
             </IconButton>
@@ -157,22 +167,28 @@ export default function VideoPlayer({ src, op, className }: Props) {
               min={0}
               max={duration}
               step={0.1}
-              value={currentTime}
               onChange={handleSliderChange}
-              onChangeCommitted={handleSliderCommit}
+              value={currentTime}
               sx={{ flexGrow: 1, mx: 2 }}
             />
             <IconButton onClick={handleVolumeClick} color="primary">
               <VolumeUpIcon />
             </IconButton>
             <Popover
-              open={Boolean(anchorEl)}
+              id={id}
+              open={open}
               anchorEl={anchorEl}
               onClose={handleClose}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              transformOrigin={{ vertical: "bottom", horizontal: "right" }}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
             >
-              <Box p={2}>
+              <Box p={2} alignItems="center">
                 <Slider
                   orientation="vertical"
                   min={0}
@@ -188,6 +204,9 @@ export default function VideoPlayer({ src, op, className }: Props) {
               {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
             </IconButton>
           </Box>
+          <Typography color={isDarkMode ? "white" : "black"}>
+            {isPlaying ? "Reproduciendo" : "Pausado"}
+          </Typography>
         </Box>
       )}
     </div>
