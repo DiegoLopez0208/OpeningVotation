@@ -29,12 +29,7 @@ export default function Leaderboard() {
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
-    if (!userId) {
-      window.location.href = "/login";
-    }
-  }, []);
 
-  useEffect(() => {
     async function fetchOpenings() {
       try {
         console.log(
@@ -75,6 +70,11 @@ export default function Leaderboard() {
       } finally {
         setLoading(false);
       }
+    }
+
+    if (!userId) {
+      window.location.href = "/login";
+      return;
     }
 
     fetchOpenings();

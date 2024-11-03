@@ -58,5 +58,31 @@ export function userHandler(app) {
             });
         }
     });
+
+    // GET /api/users/:id
+    app.get('/api/users/:id', async (req, res) => {
+        try {
+            const user = await User.findById(req.params.id);
+            if (!user) {
+                return res.send({
+                    status: 404,
+                    message: 'Usuario no encontrado'
+                });
+            }
+
+            user.password = undefined;  
+
+            res.send({
+                status: 200,
+                message: 'Usuario encontrado',
+                user
+            });
+        } catch (error) {
+            res.send({
+                status: 500,
+                message: 'Error al obtener el usuario'
+            });
+        }
+    });
 }
 

@@ -1,7 +1,7 @@
 "use client";
 import { useSettings } from "@/app/context/SettingsContext";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const {
@@ -14,6 +14,7 @@ export default function Navbar() {
     updateQuickView,
     updateShowGifs,
   } = useSettings();
+  const [username, setUsername] = useState<string>("");
 
   const handleLogout = () => {
     // Implementar lógica de cierre de sesión aquí
@@ -22,11 +23,38 @@ export default function Navbar() {
   };
 
   useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    const fetchUsername = async () => {
+      const userId = localStorage.getItem("userId");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${userId}`
+      );
+
+      if (!response.ok) {
+        console.log("Error al obtener el usuario");
+      }
+
+      const { user } = await response.json();
+
+      if (!user) {
+        return console.log("No se encontro el usuario");
+      }
+
+      setUsername(user.username[0].toUpperCase() + user.username.slice(1));
+    };
+
+    
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
+    
+    if (!userId) {
+      return
+    }
+
+    fetchUsername();
   }, [isDarkMode]);
 
   return (
@@ -49,6 +77,9 @@ export default function Navbar() {
               />
             </svg>
           </Link>
+          <div className="h-full flex items-center">
+            <h1 className="text-white text-4xl">{username ? `Hola ${username}!`: ""}</h1>
+          </div>
           <div className="flex items-center">
             <button
               onClick={() => updateSettingsOpen(!isSettingsOpen)}
