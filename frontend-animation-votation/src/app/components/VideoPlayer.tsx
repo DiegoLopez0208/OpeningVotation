@@ -25,70 +25,75 @@ export default function VideoPlayer({ src, op, className }: Props) {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
+    const [controlsVisible, setControlsVisible] = useState(true);
 
     useEffect(() => {
         const videoPlayer = videoRef.current;
         if (videoPlayer) {
-            videoPlayer.currentTime = isQuickView ? parseInt(op.start, 10) : 0;
+            const startTime = parseInt(op.start, 10);
+            const chorusTime = parseInt(op.chorus, 10);
+            videoPlayer.volume = volume;
 
             const handleTimeUpdate = () => {
                 setCurrentTime(videoPlayer.currentTime);
+
+                if (isQuickView) {
+                    if (videoPlayer.currentTime >= startTime + 6 && videoPlayer.currentTime < chorusTime) {
+                        videoPlayer.currentTime = chorusTime;
+                    } else if (videoPlayer.currentTime >= chorusTime + 15) {
+                        videoPlayer.pause();
+                        videoPlayer.removeEventListener("timeupdate", handleTimeUpdate);
+                    }
+                }
             };
 
+            videoPlayer.currentTime = isQuickView ? startTime : 0;
+            videoPlayer.play();
             videoPlayer.addEventListener("timeupdate", handleTimeUpdate);
+
             return () => {
                 videoPlayer.removeEventListener("timeupdate", handleTimeUpdate);
             };
         }
-    }, [isQuickView, op.start]); // Mantiene solo dependencias relevantes para el tiempo
+    }, [isQuickView, op]);
 
     useEffect(() => {
-        const videoPlayer = videoRef.current;
-        if (videoPlayer) {
-            videoPlayer.volume = volume; // Establece el volumen del video
+        if (videoRef.current) {
+            videoRef.current.volume = volume;
         }
-    }, [volume]); // Efecto separado para el volumen
+    }, [volume]);
 
     const togglePlayPause = () => {
         const videoPlayer = videoRef.current;
         if (videoPlayer) {
-            if (isPlaying) {
-                videoPlayer.pause();
-            } else {
-                videoPlayer.play();
-            }
+            if (isPlaying) videoPlayer.pause();
+            else videoPlayer.play();
             setIsPlaying(!isPlaying);
         }
     };
 
-    const handleVolumeChange = (event: Event, newValue: number | number[]) => {
-        const newVolume = newValue as number;
-        setVolume(newVolume);
-    };
-
-    const handleSliderChange = (event: Event, newValue: number | number[]) => {
+    const handleVolumeChange = (_event: Event, newValue: number | number[]) => {
+        const value = Math.min(Math.max(newValue as number, 0), 1);
+        setVolume(value);
         if (videoRef.current) {
-            const newTime = newValue as number;
-            videoRef.current.currentTime = newTime; // Actualiza el tiempo del video
-            setCurrentTime(newTime); // Actualiza el tiempo actual
+            videoRef.current.volume = value;
         }
     };
 
-    const handleVolumeClick = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
+    const handleSliderChange = (_event: Event, newValue: number | number[]) => {
+        if (videoRef.current) {
+            const timeValue = newValue as number;
+            if (timeValue >= 0 && timeValue <= duration) {
+                videoRef.current.currentTime = timeValue;
+                setCurrentTime(timeValue);
+            }
+        }
     };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    const open = Boolean(anchorEl);
-    const id = open ? 'volume-popover' : undefined;
 
     const toggleFullscreen = () => {
         if (videoRef.current) {
             if (!isFullscreen) {
-                videoRef.current.requestFullscreen();
+                videoRef.current.requestFullscreen().catch(console.error);
             } else {
                 document.exitFullscreen();
             }
@@ -96,15 +101,20 @@ export default function VideoPlayer({ src, op, className }: Props) {
         }
     };
 
-    // Función para formatear tiempo
-    const formatTime = (time: number) => {
+    const formatTime = (time: number): string => {
+        if (isNaN(time)) return "0:00";
         const minutes = Math.floor(time / 60);
         const seconds = Math.floor(time % 60);
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     };
 
+    const handleMouseMove = () => {
+        setControlsVisible(true);
+        setTimeout(() => setControlsVisible(false), 2000);
+    };
+
     return (
-        <div className={`relative ${className}`}>
+        <div className={`relative ${className}`} onMouseMove={handleMouseMove}>
             <video
                 ref={videoRef}
                 preload="auto"
@@ -112,68 +122,59 @@ export default function VideoPlayer({ src, op, className }: Props) {
                 autoPlay
                 loop
                 controls={false}
-                onLoadedMetadata={() => {
-                    if (videoRef.current) {
-                        setDuration(videoRef.current.duration); // Establece la duración al cargar
-                    }
-                }}
+                onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
             >
                 <source src={src} type="video/webm" />
                 Tu navegador no soporta la extensión de video.
             </video>
-            <Box className={`absolute bottom-0 left-0 right-0 p-4 ${isDarkMode ? 'bg-gray-900 bg-opacity-70' : 'bg-gray-300'}`}>
-                <Typography color={isDarkMode ? "white" : "black"}>
-                    {formatTime(currentTime)} / {formatTime(duration)}
-                </Typography>
-                <Box display="flex" alignItems="center" justifyContent="space-between">
-                    <IconButton onClick={togglePlayPause} color="primary">
-                        {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-                    </IconButton>
-                    <Slider
-                        min={0}
-                        max={duration}
-                        step={0.1}
-                        onChange={handleSliderChange}
-                        value={currentTime}
-                        sx={{ flexGrow: 1, mx: 2 }}
-                    />
-                    <IconButton onClick={handleVolumeClick} color="primary">
-                        <VolumeUpIcon />
-                    </IconButton>
-                    <Popover
-                        id={id}
-                        open={open}
-                        anchorEl={anchorEl}
-                        onClose={handleClose}
-                        anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        transformOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'right',
-                        }}
-                    >
-                        <Box p={2}>
-                            <Slider
-                                orientation="vertical"
-                                min={0}
-                                max={1}
-                                step={0.01}
-                                value={volume}
-                                onChange={handleVolumeChange}
-                                sx={{ height: 100 }} // Ajusta la altura del slider vertical
-                            />
-                        </Box>
-                    </Popover>
-                    <IconButton onClick={toggleFullscreen} color="primary">
-                        {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
-                    </IconButton>
+            {controlsVisible && (
+                <Box className={`absolute bottom-0 left-0 right-0 p-4 ${isDarkMode ? 'bg-gray-900 bg-opacity-70' : 'bg-gray-300'}`}>
+                    <Typography color={isDarkMode ? "white" : "black"}>
+                        {formatTime(currentTime)} / {formatTime(duration)}
+                    </Typography>
+                    <Box display="flex" alignItems="center" justifyContent="space-between">
+                        <IconButton onClick={togglePlayPause} color="primary">
+                            {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+                        </IconButton>
+                        <Slider
+                            min={0}
+                            max={duration}
+                            step={0.1}
+                            onChange={handleSliderChange}
+                            value={currentTime}
+                            sx={{ flexGrow: 1, mx: 2 }}
+                        />
+                        <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} color="primary">
+                            <VolumeUpIcon />
+                        </IconButton>
+                        <Popover
+                            open={Boolean(anchorEl)}
+                            anchorEl={anchorEl}
+                            onClose={() => setAnchorEl(null)}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                            transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                        >
+                            <Box p={2}>
+                                <Slider
+                                    orientation="vertical"
+                                    min={0}
+                                    max={1}
+                                    step={0.01}
+                                    value={volume}
+                                    onChange={handleVolumeChange}
+                                    sx={{ height: 100 }}
+                                />
+                            </Box>
+                        </Popover>
+                        <IconButton onClick={toggleFullscreen} color="primary">
+                            {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+                        </IconButton>
+                    </Box>
+                    <Typography color={isDarkMode ? "white" : "black"}>
+                        {isPlaying ? "Reproduciendo" : "Pausado"}
+                    </Typography>
                 </Box>
-                <Typography color={isDarkMode ? "white" : "black"}>
-                    {isPlaying ? "Reproduciendo" : "Pausado"}
-                </Typography>
-            </Box>
+            )}
         </div>
     );
 }
