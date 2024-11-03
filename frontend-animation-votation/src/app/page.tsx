@@ -4,6 +4,7 @@ import LoadingIcon from "@/app/components/LoadingIcon";
 import Link from "next/link";
 import { useSettings } from "@/app/context/SettingsContext";
 import { motion } from "framer-motion";
+import Countdown from "./components/Countdowm";
 
 interface Opening {
   _id: string;
@@ -81,15 +82,10 @@ export default function Leaderboard() {
 
   if (loading) {
     return (
-    <div
-      className={`min-h-screen ${
-        isDarkMode
-          ? "dark"
-          : ""
-      }`}
-    >
-      <LoadingIcon />
-    </div>)
+      <div className={`min-h-screen ${isDarkMode ? "dark" : ""}`}>
+        <LoadingIcon />
+      </div>
+    );
   }
 
   return (
@@ -103,9 +99,12 @@ export default function Leaderboard() {
       <div className="min-h-screen bg-blue-50 dark:bg-gray-900 transition-colors duration-200">
         <main className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
-            <h1 className="text-3xl font-bold text-blue-900 dark:text-blue-100 mb-6 transition-colors duration-200">
-              Votación de openings
-            </h1>
+            <div className="sm:flex justify-between items-center">
+              <h1 className="text-3xl font-bold text-blue-900 dark:text-blue-100 mb-4 sm:text-left text-center transition-colors duration-200">
+                Votación de openings
+              </h1>
+              <Countdown />
+            </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {ops
                 .slice((page - 1) * pageSize, page * pageSize)

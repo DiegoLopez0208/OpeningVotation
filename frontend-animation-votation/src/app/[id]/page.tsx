@@ -6,6 +6,7 @@ import VideoPlayer from "@/app/components/VideoPlayer";
 import Link from "next/link";
 import Slider from "@mui/material/Slider";
 import styled from "@emotion/styled";
+import time from "timers"
 
 interface Vote {
   openingId: string;
@@ -64,6 +65,8 @@ export default function PostPage() {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/votes/${userId}`
       );
       const { data } = await response.json();
+
+      console.log(time)
 
       const userVote = data.find((vote: Vote) => vote.openingId === id);
       setOpVote(userVote || null);
