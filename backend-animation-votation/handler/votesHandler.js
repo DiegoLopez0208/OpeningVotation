@@ -1,72 +1,95 @@
-import userSchema from '../schemas/userSchema.js';
-import voteSchema from '../schemas/voteSchema.js';
+import userSchema from "../schemas/userSchema.js";
+import voteSchema from "../schemas/voteSchema.js";
 
 export function votesHandler(app) {
-    // GET /votes/:userid
-    app.get('/api/votes/:id', async (req, res) => {
-        const votes = await voteSchema.find({ userId: req.params.id })
+  // GET /votes/:userid
+  app.get("/api/votes/:id", async (req, res) => {
+    const votes = await voteSchema.find({ userId: req.params.id });
 
-        if (!votes) {
-            return res.status(404).send('No se encontraron votos para este usuario')
+    if (votes.length === 0) {
+      return res.send({
+        status: 404,
+        message: "No se encontraron votos para este usuario",
+        data: [],
+      });
+    }
+
+    return res.send({
+      status: 200,
+      message: "Votos encontrados",
+      data: votes,
+    });
+  });
+
+  // POST /vote
+  app.post("/api/vote", async (req, res) => {
+    const { openingId, userId, vote } = req.body;
+
+    console.log("Recibido:", { openingId, userId, vote }); // Agregar depuración aquí
+
+    try {
+      // Verificar si ya existe un voto del usuario para el opening
+      const existingVote = await voteSchema.findOne({ openingId, userId });
+
+      if (vote === 0 || vote === 11) {
+        // Verificar si el usuario ya usó su voto especial de 0 o 11
+        const specialVoteUsed = await voteSchema.findOne({ userId, vote });
+        if (specialVoteUsed) {
+          return res.status(400).send({
+            status: 400,
+            message: `Ya utilizaste tu voto por ${vote}!`,
+          });
         }
+      }
 
-        res.send({
+      if (existingVote) {
+        if (existingVote.vote === vote) {
+          return res.status(200).send({
             status: 200,
-            message: 'Votos encontrados',
-            data: votes
-        })
-    })
-
-    // POST /vote
-    app.post('/api/vote', async (req, res) => {
-        const { openingId, userId, vote } = req.body
-
-        const userVotes = await voteSchema.find({ userId })
-        const user = await userSchema.findById({ _id: userId })
-
-        // Encontrar los votos 0 y 11 entre todos los votos
-        const zeroVote = userVotes.find(v => v.vote === 0)
-        const elevenVote = userVotes.find(v => v.vote === 11)
-
-        if (vote === 0 && zeroVote) {
-            return res.send({
-                status: 400, message: 
-                'El usuario ya ha utilizado su voto nulo'
-            });
+            message: "Ya tienes este voto registrado para este opening!",
+          });
         }
-        
-        if(vote === 11 && elevenVote) {
-            return res.send({
-                status: 400, 
-                message: 'El usuario ya ha utilizado su voto 11'
-            })
-        }
+        // Actualizar el voto existente
+        existingVote.vote = vote;
+        await existingVote.save();
+        return res.status(200).send({
+          status: 200,
+          message: "Voto actualizado correctamente!",
+        });
+      }
 
-        // Encontrar el voto existente para el openingId y userId
-        const existingVote = await voteSchema.findOne({ openingId, userId })
+      // Crear un nuevo voto
+      const user = await userSchema.findOne({ _id: userId });
 
-        if(!existingVote) {
-            const newVote = new voteSchema({
-                submittedBy: user.username,
-                openingId,
-                userId,
-                vote
-            })
-        
-            newVote.save()
-            return res.send({
-                status: 200, message: 'Voto agregado correctamente!'
-            })
-        }
+      // Verificar si el usuario fue encontrado
+      if (!user) {
+        console.error("Usuario no encontrado para el ID:", userId); // Mensaje de error
+        return res.status(404).send({
+          status: 404,
+          message: "Usuario no encontrado",
+        });
+      }
 
+      console.log("Usuario encontrado:", user.username); // Agregar depuración aquí
 
-        existingVote.vote = vote
+      const newVote = new voteSchema({
+        openingId,
+        userId,
+        submittedBy: user.username, // Accede a username solo si el usuario fue encontrado
+        vote,
+      });
 
-
-        existingVote.save()
-        return res.send({
-            status: 200,
-            message: 'Voto actualizado correctamente!'
-        })
-    })
+      await newVote.save();
+      return res.status(201).send({
+        status: 201,
+        message: "Voto agregado correctamente!",
+      });
+    } catch (error) {
+      console.error("Error al procesar el voto:", error);
+      return res.status(500).send({
+        status: 500,
+        message: "Error al procesar el voto",
+      });
+    }
+  });
 }

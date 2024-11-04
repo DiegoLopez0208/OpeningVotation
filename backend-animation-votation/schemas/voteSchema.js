@@ -2,12 +2,14 @@ import { Schema, model } from 'mongoose';
 
 const votesSchema = new Schema({
     openingId: {
-        type: String,
+        type: Schema.Types.ObjectId, 
         required: true,
+        ref: 'Opening' 
     },
     userId: {
-        type: String,
-        required: true
+        type: Schema.Types.ObjectId, 
+        required: true,
+        ref: 'User' 
     },
     submittedBy: {
         type: String,

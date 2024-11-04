@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import PasswordInput from "./components/PasswordInput";
-import { ModeProvider } from "./context/ModeContext";
+import PasswordInput from "@/app/components/PasswordInput";
 
 export default function Home() {
   const [username, setUsername] = useState("");
@@ -11,15 +10,15 @@ export default function Home() {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (userId) {
-      window.location.href = "/pages";
+      window.location.href = "/";
     }
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     try {
-      const response = await fetch("http://192.168.1.58:4000/api/login", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,28 +31,27 @@ export default function Home() {
 
       if (data.status === 200) {
         localStorage.setItem("userId", data.userId);
-        window.location.href = "/pages";
+        window.location.href = "/";
       }
 
       if (data.status === 401) {
         setError(data.message);
       }
     } catch (error) {
-      console.error("Error en la solicitud:", error);
-      setError("No se pudo conectar con el servidor");
+      console.error("Error en la solicitud:", error);     
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f9f9f9]">
-      <div className="bg-white shadow-xl rounded-xl p-8 max-w-md w-full">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
+    <div className="absolute top-0 h-full flex w-full items-center justify-center bg-[#f9f9f9] dark:bg-gray-900 -z-10">
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-8 max-w-md w-full  border border-blue-500">
+        <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-6 text-center">
           Iniciar sesión
         </h2>
         <form>
           <div className="mb-4">
             <label
-              className="block text-gray-700 text-sm font-semibold mb-2"
+              className="block text-gray-700 dark:text-white text-sm font-semibold mb-2"
               htmlFor="username"
             >
               Usuario
@@ -63,7 +61,7 @@ export default function Home() {
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 dark:bg-gray-800 text-white"
               placeholder="Ingresa tu usuario"
               required
             />
@@ -71,7 +69,7 @@ export default function Home() {
 
           <div className="mb-6">
             <label
-              className="block text-gray-700 text-sm font-semibold mb-2"
+              className="block text-gray-700 dark:text-white text-sm font-semibold mb-2"
               htmlFor="password"
             >
               Contraseña
@@ -80,7 +78,7 @@ export default function Home() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 dark:bg-gray-800"
             />
             {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
           </div>
