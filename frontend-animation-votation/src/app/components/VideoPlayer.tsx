@@ -40,10 +40,13 @@ export default function VideoPlayer({ src, op, className }: Props) {
         setCurrentTime(currentTime);
 
         if (isQuickView) {
+          if (currentTime <= startTime) {
+            videoPlayer.currentTime = startTime;
+          }
           if (currentTime >= startTime + 6 && currentTime < chorusTime) {
             videoPlayer.currentTime = chorusTime;
           } else if (currentTime >= chorusTime + 15) {
-            videoPlayer.pause();
+            togglePlayPause();
             videoPlayer.currentTime = chorusTime + 15;
           }
         }
@@ -56,6 +59,7 @@ export default function VideoPlayer({ src, op, className }: Props) {
         videoPlayer.removeEventListener("timeupdate", handleTimeUpdate);
       };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isQuickView, op]);
 
   useEffect(() => {
@@ -113,6 +117,10 @@ export default function VideoPlayer({ src, op, className }: Props) {
   };
 
   const formatTime = (time: number) => {
+    // return is number is NaN
+    if (isNaN(time)) {
+      return "0:00";
+    }
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
@@ -148,7 +156,7 @@ export default function VideoPlayer({ src, op, className }: Props) {
       </video>
       {controlsVisible && (
         <Box
-          className={`absolute bottom-0 left-0 right-0 p-4 ${
+          className={`absolute bottom-0 left-0 right-0 p-4 sm:rounded-b-lg ${
             isDarkMode ? "bg-gray-900 bg-opacity-70" : "bg-gray-300"
           }`}
         >
@@ -165,7 +173,7 @@ export default function VideoPlayer({ src, op, className }: Props) {
             </IconButton>
             <Slider
               min={0}
-              max={duration}
+              max={duration || 1}
               step={0.1}
               onChange={handleSliderChange}
               value={currentTime}
@@ -204,9 +212,6 @@ export default function VideoPlayer({ src, op, className }: Props) {
               {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
             </IconButton>
           </Box>
-          <Typography color={isDarkMode ? "white" : "black"}>
-            {isPlaying ? "Reproduciendo" : "Pausado"}
-          </Typography>
         </Box>
       )}
     </div>

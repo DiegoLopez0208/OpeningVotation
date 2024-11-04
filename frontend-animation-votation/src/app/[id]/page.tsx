@@ -6,7 +6,7 @@ import VideoPlayer from "@/app/components/VideoPlayer";
 import Link from "next/link";
 import Slider from "@mui/material/Slider";
 import styled from "@emotion/styled";
-import time from "timers"
+import time from "timers";
 
 interface Vote {
   openingId: string;
@@ -49,8 +49,6 @@ export default function PostPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [value, setValue] = useState<number>(5.5);
   const [showAlert, setShowAlert] = useState<boolean>(false);
-  const [alertMessage, setAlertMessage] = useState<string>("");
-  const [showVoteAlert, setShowVoteAlert] = useState<boolean>(false);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -66,7 +64,7 @@ export default function PostPage() {
       );
       const { data } = await response.json();
 
-      console.log(time)
+      console.log(time);
 
       const userVote = data.find((vote: Vote) => vote.openingId === id);
       setOpVote(userVote || null);
@@ -112,19 +110,19 @@ export default function PostPage() {
     setValue(newValue as number); // Asegúrate de manejar el caso de rango si es necesario
   };
 
-  const handleVote = async () => {
-    if (value === 11 || value === 0) {
-      setAlertMessage(
-        value === 11
-          ? "¿Estás seguro de utilizar el voto 11?"
-          : "¿Estás seguro de utilizar el voto 0?"
-      );
-      setShowAlert(true);
-    } else if (value === -1) {
-      alert("Elige un número para poder votar!");
-    } else {
-      await sendVote();
+  const handleVote = () => {
+    setShowAlert(true);
+  };
+
+  const confirmVote = (confirm: boolean) => {
+    if (value === -1) {
+      return setShowAlert(true);
     }
+
+    if (confirm) {
+      sendVote();
+    }
+    setShowAlert(false);
   };
 
   const sendVote = async () => {
@@ -149,7 +147,6 @@ export default function PostPage() {
       if (!response.ok) throw new Error("Error al enviar el voto");
 
       await fetchVotes();
-      setShowVoteAlert(true);
     } catch (error) {
       console.error("Error en la solicitud:", error);
     }
@@ -164,7 +161,7 @@ export default function PostPage() {
           <div className="text-2xl dark:text-blue-200 font-bold text-center m-4 sm:m-6">
             {ops ? ops.op.title : "Cargando..."}
           </div>
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div className="aspect-video sm:mx-6">
               <VideoPlayer
                 className="sm:rounded-lg border-2 border-white border-opacity-10"
@@ -173,15 +170,17 @@ export default function PostPage() {
               />
             </div>
             <div className="flex flex-col items-center space-y-4 sm:w-9/12 w-full mx-auto pb-6 px-6">
-              <CustomSlider
-                value={value}
-                className="w-full"
-                onChange={handleChange}
-                min={1}
-                max={10}
-                step={0.5}
-                defaultValue={5.5}
-              />
+              <div className="w-full px-2">
+                <CustomSlider
+                  value={value}
+                  className="w-full"
+                  onChange={handleChange}
+                  min={1}
+                  max={10}
+                  step={0.5}
+                  defaultValue={5.5}
+                />
+              </div>
               <div className="w-full flex justify-between">
                 <button
                   onClick={() => {
@@ -254,44 +253,43 @@ export default function PostPage() {
       {showAlert && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-md max-w-sm w-full">
-            <h2 className="text-lg font-bold mb-2 dark:text-blue-200">
-              Confirmación de Voto
-            </h2>
-            <p className="mb-4 dark:text-blue-200">{alertMessage}</p>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setShowAlert(false)}
-                className="bg-gray-300 rounded px-4 py-2"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={sendVote}
-                className="bg-blue-500 text-white rounded px-4 py-2"
-              >
-                Aceptar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {showVoteAlert && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-md max-w-sm w-full">
-            <h2 className="text-lg font-bold mb-2 dark:text-blue-200">
-              Voto Realizado
-            </h2>
-            <p className="mb-4 dark:text-blue-200">
-              Tu voto ha sido registrado.
-            </p>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setShowVoteAlert(false)}
-                className="bg-blue-500 text-white rounded px-4 py-2"
-              >
-                Aceptar
-              </button>
-            </div>
+            {value == -1 ? (
+              <>
+                <h2 className="text-lg font-bold mb-2 dark:text-blue-200">
+                  Selecciona una nota antes de votar!
+                </h2>
+                <div className="w-full flex justify-end">
+                  <button
+                    onClick={() => setShowAlert(false)}
+                    className="bg-blue-500 text-white rounded px-4 py-2"
+                  >
+                    Aceptar
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <span className="text-lg font-bold mb-2 dark:text-white">
+                  Estas seguro de votar{" "}
+                  <span className="text-blue-700 dark:text-blue-400">{ops.op.title}</span> con
+                  un: <span className="text-blue-700 dark:text-blue-400">{value}</span>?
+                </span>
+                <div className="flex justify-end space-x-2">
+                  <button
+                    onClick={() => confirmVote(false)}
+                    className="bg-gray-300 rounded px-4 py-2"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={() => confirmVote(true)}
+                    className="bg-blue-500 text-white rounded px-4 py-2"
+                  >
+                    Aceptar
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

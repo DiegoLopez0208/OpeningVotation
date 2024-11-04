@@ -11,8 +11,6 @@ interface TimeLeft {
 const Countdown: React.FC = () => {
   const fechaFutura: Date = new Date("Mon Nov 11 2024 00:00:00 GMT-0300 (hora estándar de Argentina)");
 
-  console.log(fechaFutura)
-
   const calculateTimeLeft = (): TimeLeft => {
     const now: number = new Date().getTime();
     const distance: number = fechaFutura.getTime() - now;
