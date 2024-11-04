@@ -23,16 +23,22 @@ mongoose.connect(process.env.MONGODB, {})
     console.log('Conectado a la base de datos!');
 })
 
-// Middleware
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/videos', express.static(path.join(__dirname, 'videos')));
 app.use(express.json())
 app.use(cors())
+
+// add /api to all routes
+
+
 
 userHandler(app);
 openingsHandler(app);
 votesHandler(app);
 adminHandler(app);
+
+app.get('/api', (req, res) => res.status(200).send({
+    status: 200,
+    message: 'Funcionando! 🚀'
+}))
 
 app.listen(PORT, () => {
     console.log("Escuchando en puerto", PORT);

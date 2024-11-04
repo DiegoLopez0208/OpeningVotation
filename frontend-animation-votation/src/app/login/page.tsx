@@ -3,15 +3,31 @@ import { useEffect, useState } from "react";
 import PasswordInput from "@/app/components/PasswordInput";
 
 export default function Home() {
+  const [serverStatus, setServerStatus] = useState("Offline");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState();
 
   useEffect(() => {
+    const fetchServerStatus = async () => {
+      try {
+        setServerStatus("Iniciando...");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api`);
+        const data = await response.json();
+        if (data.status === 200) {
+          setServerStatus("Online");
+        }
+      } catch (error) {
+        setServerStatus("Offline");
+        console.error("Error en la solicitud:", error);
+      }
+    }
     const userId = localStorage.getItem("userId");
     if (userId) {
       window.location.href = "/";
     }
+
+    fetchServerStatus();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,7 +59,7 @@ export default function Home() {
   };
 
   return (
-    <div className="absolute top-0 h-full flex w-full items-center justify-center bg-[#f9f9f9] dark:bg-gray-900 -z-10">
+    <div className="absolute top-0 h-full flex flex-col w-full items-center justify-center bg-[#f9f9f9] dark:bg-gray-900 -z-10">
       <div className="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-8 max-w-md w-full  border border-blue-500">
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-white mb-6 text-center">
           Iniciar sesión
@@ -96,6 +112,7 @@ export default function Home() {
           </button>
         </form>
       </div>
+      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-400 mt-4">Estado del servidor: {serverStatus}</h2>
     </div>
   );
 }
