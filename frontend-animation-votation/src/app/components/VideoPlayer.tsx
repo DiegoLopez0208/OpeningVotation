@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function VideoPlayer({ src, op, className }: Props) {
-  const { isQuickView, isDarkMode } = useSettings();
+  const { isQuickView, isDarkMode, useLocalServer } = useSettings();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [volume, setVolume] = useState(0.5);
@@ -33,7 +33,7 @@ export default function VideoPlayer({ src, op, className }: Props) {
     if (videoPlayer) {
       const startTime = parseInt(op.start, 10);
       const chorusTime = parseInt(op.chorus, 10);
-      videoPlayer.volume = volume;
+      videoPlayer.volume = parseFloat(localStorage.getItem("volume") || "0.5");
 
       const handleTimeUpdate = () => {
         const currentTime = videoPlayer.currentTime;
@@ -53,13 +53,12 @@ export default function VideoPlayer({ src, op, className }: Props) {
       };
 
       videoPlayer.addEventListener("timeupdate", handleTimeUpdate);
-      setDuration(videoPlayer.duration);
 
       return () => {
         videoPlayer.removeEventListener("timeupdate", handleTimeUpdate);
       };
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isQuickView, op]);
 
   useEffect(() => {
@@ -67,6 +66,17 @@ export default function VideoPlayer({ src, op, className }: Props) {
       videoRef.current.volume = volume;
     }
   }, [volume]);
+
+  // Nuevo useEffect para reiniciar el video cuando cambia useLocalServer
+  useEffect(() => {
+    const videoPlayer = videoRef.current;
+    if (videoPlayer) {
+      videoPlayer.currentTime = 0; // Reinicia el tiempo
+      setCurrentTime(0); // Reinicia el estado de tiempo
+      setIsPlaying(true); // Restablece el estado de reproducción
+      videoPlayer.play().catch(() => setIsPlaying(false)); // Intenta reproducir el video
+    }
+  }, [useLocalServer]);
 
   const togglePlayPause = () => {
     const videoPlayer = videoRef.current;
@@ -81,6 +91,7 @@ export default function VideoPlayer({ src, op, className }: Props) {
   };
 
   const handleVolumeChange = (_event: Event, newValue: number | number[]) => {
+    localStorage.setItem("volume", newValue.toString());
     const newVolume = newValue as number;
     setVolume(newVolume);
   };
@@ -117,7 +128,6 @@ export default function VideoPlayer({ src, op, className }: Props) {
   };
 
   const formatTime = (time: number) => {
-    // return is number is NaN
     if (isNaN(time)) {
       return "0:00";
     }
@@ -151,7 +161,14 @@ export default function VideoPlayer({ src, op, className }: Props) {
           }
         }}
       >
-        <source src={src} type="video/webm" />
+        <source
+          src={
+            useLocalServer
+              ? process.env.NEXT_PUBLIC_HOST_URL + src
+              : process.env.NEXT_PUBLIC_ANIMETHEMES_URL + src
+          }
+          type="video/webm"
+        />
         Tu navegador no soporta la extensión de video.
       </video>
       {controlsVisible && (

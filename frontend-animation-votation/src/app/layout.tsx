@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SettingsProvider } from "@/app/context/SettingsContext";
 import Navbar from "./components/Navbar";
+import DataContextProvider from "./context/DataContext";
 
 export const metadata: Metadata = {
   title: "Animation Votation",
@@ -15,8 +16,10 @@ export default function RootLayout({
     <html lang="es">
       <body>
         <SettingsProvider>
-          <Navbar />
-          {children}
+          <DataContextProvider>
+            <Navbar />
+            {children}
+          </DataContextProvider>
         </SettingsProvider>
       </body>
     </html>

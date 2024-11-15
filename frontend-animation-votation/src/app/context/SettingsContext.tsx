@@ -12,10 +12,12 @@ interface SettingsContextType {
   isDarkMode: boolean;
   isQuickView: boolean;
   isShowGifs: boolean;
+  useLocalServer: boolean;
   updateQuickView: (enabled: boolean) => void;
   updateShowGifs: (enabled: boolean) => void;
   updateDarkMode: (enabled: boolean) => void;
   updateSettingsOpen: (enabled: boolean) => void;
+  updateUseLocalServer: (enabled: boolean) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
@@ -29,11 +31,13 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isQuickView, setIsQuickView] = useState(false);
   const [isShowGifs, setShowGifs] = useState(true);
+  const [useLocalServer, setUseLocalServer] = useState(true);
 
   useEffect(() => {
     const savedIsQuickView = localStorage.getItem("isQuickView");
     const savedIsDarkMode = localStorage.getItem("isDarkMode");
     const savedIsShowGifs = localStorage.getItem("isShowGifs");
+    const savedUseLocalServer = localStorage.getItem("useLocalServer");
 
     if (savedIsQuickView) {
       setIsQuickView(savedIsQuickView === "true" ? true : false); // Convertir a booleano
@@ -47,6 +51,10 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
     }
     else {
       setIsDarkMode(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+
+    if (savedUseLocalServer) {
+      setUseLocalServer(savedUseLocalServer === "true" ? true : false); // Convertir a booleano
     }
   }, []);
 
@@ -69,6 +77,11 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
     setIsSettingsOpen(enabled);
   };
 
+  const updateUseLocalServer = (enabled: boolean) => {
+    setUseLocalServer(enabled);
+    localStorage.setItem("useLocalServer", enabled.toString());
+  };
+
   return (
     <SettingsContext.Provider
       value={{
@@ -76,10 +89,12 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({
         isDarkMode,
         isQuickView,
         isShowGifs,
+        useLocalServer,
         updateQuickView,
         updateShowGifs,
         updateDarkMode,
         updateSettingsOpen,
+        updateUseLocalServer,
       }}
     >
       {children}

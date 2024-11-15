@@ -42,6 +42,11 @@ export function openingsHandler(app) {
         title: { $gt: opening.title },
       }).sort({ title: 1 }); // Orden ascendente para obtener el más cercano
 
+      //slice url to get last part
+      opening.url = opening.url.slice(opening.url.lastIndexOf("/") + 1);
+
+      console.log(opening)
+
       res.send({
         status: 200,
         message: "Opening encontrado",

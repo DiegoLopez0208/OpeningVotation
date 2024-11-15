@@ -9,10 +9,12 @@ export default function Navbar() {
     isDarkMode,
     isQuickView,
     isShowGifs,
+    useLocalServer,
     updateSettingsOpen,
     updateDarkMode,
     updateQuickView,
     updateShowGifs,
+    updateUseLocalServer,
   } = useSettings();
   const [username, setUsername] = useState<string>("");
 
@@ -165,6 +167,33 @@ export default function Navbar() {
                         aria-hidden="true"
                         className={`${
                           isShowGifs ? "translate-x-5" : "translate-x-0"
+                        } pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200`}
+                      />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex-grow flex flex-col">
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                        Usar Host Propio
+                      </span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {useLocalServer ? "Usando Host Propio" : "Usando AnimeThemes"}
+                      </span>
+                    </span>
+                    <button
+                      onClick={() => updateUseLocalServer(!useLocalServer)}
+                      className={`${
+                        useLocalServer
+                          ? "bg-blue-600"
+                          : "bg-gray-200 dark:bg-gray-700"
+                      } relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                      aria-pressed={useLocalServer}
+                    >
+                      <span className="sr-only">Usar tema oscuro</span>
+                      <span
+                        aria-hidden="true"
+                        className={`${
+                          useLocalServer ? "translate-x-5" : "translate-x-0"
                         } pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200`}
                       />
                     </button>
