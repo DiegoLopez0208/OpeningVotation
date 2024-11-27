@@ -8,7 +8,6 @@ import styled from "@emotion/styled";
 import GifsComponent from "../components/GifsComponent";
 import { useDataContext } from "../context/DataContext";
 import { Vote, Opening } from "../interfaces/interfaces";
-import { motion } from "framer-motion";
 
 const CustomSlider = styled(Slider)(({}) => ({
   color: "#1976D2",
@@ -36,8 +35,8 @@ const CustomSlider = styled(Slider)(({}) => ({
 
 export default function PostPage() {
   const { id } = useParams();
-  const { data, votesMapping, ceroVote, elevenVote, fetchVotes } = useDataContext();
-  const [userId, setUserId] = useState<string | null>(null);
+  const { data, votesMapping } = useDataContext();
+  //const [userId, setUserId] = useState<string | null>(null);
   const [opVote, setOpVote] = useState<Vote>();
   const [op, setOp] = useState<Opening | null>(null);
   const [prevOp, setPrevOp] = useState<Opening | null>(null);
@@ -53,9 +52,8 @@ export default function PostPage() {
   }, []);
 
   useEffect(() => {
-    const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) setUserId(storedUserId);
-
+    //const storedUserId = localStorage.getItem("userId");
+    //if (storedUserId) setUserId(storedUserId);
     if (data.length > 0 && id) {
       // Encuentra el índice del opening actual
       const currentIndex = data.findIndex((op) => op._id === id);
@@ -85,6 +83,7 @@ export default function PostPage() {
   const handleChange = (event: Event, newValue: number | number[]) => {
     setValue(newValue as number); // Asegúrate de manejar el caso de rango si es necesario
   };
+  /*
 
   const handleVote = () => {
     setShowAlert(true);
@@ -127,15 +126,11 @@ export default function PostPage() {
       console.error("Error en la solicitud:", error);
     }
   };
+  */
 
   return (
     <div className="min-h-screen bg-blue-50 dark:bg-gray-900 transition-colors duration-200 sm:p-4 pt-4">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-        className="container mx-auto w-fit rounded-lg border-2 dark:border-blue-700 dark:bg-gray-800"
-      >
+      <div className="container mx-auto w-fit rounded-lg border-2 dark:border-blue-700 dark:bg-gray-800">
         <div className="max-w-4xl mx-auto rounded-lg shadow-lg">
           {op ? (
             <>
@@ -164,21 +159,27 @@ export default function PostPage() {
                   </div>
                   <div className="w-full flex justify-between">
                     <button
+                      /*
                       onClick={() => {
                         if (!ceroVote) setValue(0);
                       }}
                       className={`text-white h-10 w-12 rounded-lg ${
                         ceroVote
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
                       }`}
+                      */
+                      className="text-white h-10 w-12 rounded-lg bg-gray-400 cursor-not-allowed"
                     >
                       0
                     </button>
                     <span className="text-4xl dark:text-blue-200 font-bold">
-                      {value === -1 ? "Selecciona un voto" : value}
+                      {value === -1
+                        ? "Selecciona un voto"
+                        : `Tu voto fue: ${opVote?.vote}`}
                     </span>
                     <button
+                      /*
                       onClick={() => {
                         if (!elevenVote) setValue(11);
                       }}
@@ -187,22 +188,27 @@ export default function PostPage() {
                           ? "bg-gray-400 cursor-not-allowed"
                           : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
                       }`}
+                      */
+                      className="text-white h-10 w-12 rounded-lg bg-gray-400 cursor-not-allowed"
                     >
                       11
                     </button>
                   </div>
                   <button
-                    onClick={handleVote}
+                    //onClick={handleVote}
+                    /*
                     className={`text-white px-4 w-full py-2 ${
                       opVote?.vote === value
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
                     } rounded-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
-                  >
+                     */
+                    className="text-white px-4 w-full py-2 bg-gray-400 cursor-not-allowed rounded-md"
+                    >
                     {opVote?.vote === value ? (
-                      <span>Voto enviado</span>
+                      <span>Votacion finalizada!{/*Voto enviado*/}</span>
                     ) : (
-                      <span>Enviar voto</span>
+                      <span>Votacion finalizada!{/*Enviar voto*/}</span>
                     )}
                   </button>
                 </div>
@@ -234,7 +240,7 @@ export default function PostPage() {
             <></>
           )}
         </div>
-      </motion.div>
+      </div>
       {showAlert && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-md max-w-sm w-full">
@@ -267,13 +273,13 @@ export default function PostPage() {
                 </span>
                 <div className="flex justify-end space-x-2">
                   <button
-                    onClick={() => confirmVote(false)}
+                    //onClick={() => confirmVote(false)}
                     className="bg-gray-300 rounded px-4 py-2"
                   >
                     Cancelar
                   </button>
                   <button
-                    onClick={() => confirmVote(true)}
+                    //onClick={() => confirmVote(true)}
                     className="bg-blue-500 text-white rounded px-4 py-2"
                   >
                     Aceptar

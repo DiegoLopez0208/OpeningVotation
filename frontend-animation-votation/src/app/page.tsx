@@ -1,17 +1,17 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import LoadingIcon from "@/app/components/LoadingIcon";
 import { useSettings } from "@/app/context/SettingsContext";
 import Countdown from "./components/Countdowm";
 import { useDataContext } from "./context/DataContext";
-import { motion } from "framer-motion";
 import Link from "next/link";
+import { gsap } from "gsap";
+import { useGSAP } from "@gsap/react";
 
 export default function Leaderboard() {
   const { isDarkMode } = useSettings();
   const { data = [], loading, votesMapping = {} } = useDataContext();
   const [currentPage, setCurrentPage] = useState(() => {
-    // Sólo acceder a localStorage en el cliente
     if (typeof window !== "undefined") {
       return parseInt(localStorage.getItem("currentPage") || "1");
     }
@@ -19,13 +19,36 @@ export default function Leaderboard() {
   });
   const itemsPerPage = 15;
 
-  // Calcular el número total de páginas
   const totalPages = Math.ceil(data.length / itemsPerPage);
 
-  // Calcular los datos de la página actual
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentData = data.slice(indexOfFirstItem, indexOfLastItem);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLAnchorElement>(null);
+
+  useGSAP(
+    () => {
+      gsap.fromTo(
+        buttonRef.current,
+        { backgroundColor: "#1e40af" },
+        { backgroundColor: "#1d4ed8", duration: 0.5, repeat: -1, yoyo: true },
+      );
+    },
+    { dependencies: [loading], scope: containerRef }
+  );
+
+  useGSAP(
+    () => {
+      gsap.fromTo(
+        ".card",
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.2, stagger: 0.03 }
+      );
+    },
+    { dependencies: [loading, currentPage], scope: containerRef }
+  );
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -56,26 +79,31 @@ export default function Leaderboard() {
       <div className="min-h-screen bg-blue-50 dark:bg-gray-900 transition-colors duration-200">
         <main className="max-w-7xl mx-auto sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
+            <div className="w-full flex justify-center">
+              <Link
+                ref={buttonRef}
+                href={"/results"}
+                className="text-gray-100 font-semibold text-2xl py-2 px-4 rounded-lg hover:bg-blue-100 dark:hover:bg-gray-700"
+              >
+                Resultados disponibles!
+              </Link>
+            </div>
             <div className="sm:flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-blue-900 dark:text-blue-100 mb-4 sm:text-left text-center transition-colors duration-200">
+              <h1 className="text-3xl font-bold text-blue-900 dark:text-blue-100 sm:text-left text-center transition-colors duration-200 hidden sm:inline">
                 Votación de openings
               </h1>
               <Countdown />
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {currentData.map((op, index) => {
+            <div
+              ref={containerRef}
+              className="container mx-auto grid mt-4 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              {currentData.map((op) => {
                 const vote = votesMapping[op._id]?.[0]?.vote;
                 return (
-                  <motion.div
-                    initial={{ opacity: 0, y: -2 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.2,
-                      delay: Math.floor(index / 3) * 0.03,
-                    }}
-                    viewport={{ once: true }}
+                  <div
                     key={op._id}
-                    className="bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-lg shadow-sm overflow-hidden transition-colors duration-200"
+                    className="card bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-lg shadow-sm overflow-hidden transition-colors duration-200"
                   >
                     <div className="p-4">
                       <h2 className="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2 transition-colors duration-200">
@@ -97,12 +125,12 @@ export default function Leaderboard() {
                         </span>
                         <Link href={`/${op._id}`} passHref>
                           <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                            Votar
+                            Ver
                           </button>
                         </Link>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>

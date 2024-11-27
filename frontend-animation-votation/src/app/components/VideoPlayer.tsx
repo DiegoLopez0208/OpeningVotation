@@ -33,7 +33,7 @@ export default function VideoPlayer({ src, op, className }: Props) {
     if (videoPlayer) {
       const startTime = parseInt(op.start, 10);
       const chorusTime = parseInt(op.chorus, 10);
-      videoPlayer.volume = parseFloat(localStorage.getItem("volume") || "0.5");
+      setVolume(parseFloat(localStorage.getItem("volume") || "0.5"))
 
       const handleTimeUpdate = () => {
         const currentTime = videoPlayer.currentTime;
