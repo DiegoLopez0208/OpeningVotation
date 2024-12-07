@@ -132,7 +132,7 @@ export default function ResultsPage() {
       }`}
     >
       <div className="w-full min-h-screen bg-blue-50 dark:bg-gray-900 transition-colors duration-200 flex justify-center">
-        <div className="container text-white text-center" ref={containerRef}>
+        <div className="container text-white text-center mb-4" ref={containerRef}>
           <button
             onClick={() => setLookRewards(!lookRewards)}
             className="bg-blue-600 text-xl rounded-xl px-4 py-2 my-4"
